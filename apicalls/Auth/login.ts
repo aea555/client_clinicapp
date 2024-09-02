@@ -1,9 +1,11 @@
+"use server";
+
 import { ServiceResult } from "types/ServiceResult";
 import { env } from "../../env";
+import { cookies } from "next/headers";
 
 export async function Login(email: string, password: string): Promise<ServiceResult> {
-  const baseUrl = env.NEXT_PUBLIC_API_CON;
-  console.log(baseUrl)
+  const baseUrl = env.API_CON;
   const response = await fetch(`${baseUrl}Auth/login`, {
     method: 'POST',
     headers: {
@@ -24,5 +26,7 @@ export async function Login(email: string, password: string): Promise<ServiceRes
   }
 
   const result: ServiceResult = await response.json();
+  cookies().set("token", result.data, {secure: true});
+
   return result;
 }

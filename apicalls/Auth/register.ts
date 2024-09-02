@@ -1,15 +1,16 @@
+"use server"
+
 import { ServiceResult } from "types/ServiceResult";
 import { env } from "../../env";
 
-export async function Register(email: string, passwordHash: string): Promise<ServiceResult> {
-  const baseUrl = env.NEXT_PUBLIC_API_CON;
-  console.log(baseUrl)
+export async function Register(email: string, passwordHash: string, gender: Number, birthDate: string): Promise<ServiceResult> {
+  const baseUrl = env.API_CON;
   const response = await fetch(`${baseUrl}Account`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ email, passwordHash }),
+    body: JSON.stringify({ email, passwordHash, gender, birthDate }),
   });
 
   if (!response.ok) {

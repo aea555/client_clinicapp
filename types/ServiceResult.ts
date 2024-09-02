@@ -3,5 +3,5 @@ export interface ServiceResult<T = any> {
   errorMessage: string;
   message: string;
   statusCode: number;
-  data: T;
+  data: T | null;
 }

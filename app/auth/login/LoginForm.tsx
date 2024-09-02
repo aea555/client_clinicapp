@@ -1,50 +1,43 @@
-'use client'
+"use client";
 
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button, Input } from "@nextui-org/react";
-import { Login } from "calls/Auth/login";
-import { Register } from "calls/Auth/register";
+import {
+  Button,
+  Input,
+} from "@nextui-org/react";
+import { Login } from "apicalls/Auth/login";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-interface AuthFormProps {
-  isLogin: boolean;
-}
-
-export default function AuthForm({ isLogin }: AuthFormProps) {
-  const regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{6,20}$";
-
+export default function LoginForm() {
   const authSchema = z.object({
     email: z.string().email({ message: "Geçerli bir email giriniz." }),
-    password: z.string().regex(RegExp(regex), { message: "Şifre gereksinimlerini karşılamıyor." }),
+    password: z.string()
   });
+
+  const router = useRouter();
 
   type Schema = z.infer<typeof authSchema>;
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<Schema>({ resolver: zodResolver(authSchema) });
 
-  const onSubmit = async (data: Schema) => {
+  async function onSubmit(data: Schema) {
     try {
-      if (isLogin) {
-        const res = await Login(data.email, data.password);
+      const res = await Login(data.email, data.password);
         if (res.success) {
-          console.log("TOKEN: " + res.data);
+          console.log("LOGIN SUCCESSFUL");
+          router.replace("/dashboard");
         } else {
           console.error("LOGIN FAILED");
         }
-      } else {
-        const res = await Register(data.email, data.password);
-        if (res.success) {
-          console.log("REGISTER SUCCESSFUL");
-        } else {
-          console.error("REGISTER FAILED");
-        }
-      }
     } catch (error) {
       console.error("Unexpected error:", error);
     }
@@ -52,7 +45,12 @@ export default function AuthForm({ isLogin }: AuthFormProps) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        id="authForm"
+        className="flex flex-col gap-4"
+        onSubmit={handleSubmit(onSubmit)}
+        method="POST"
+      >
         <div>
           <Input
             id="email"
@@ -73,8 +71,11 @@ export default function AuthForm({ isLogin }: AuthFormProps) {
           {errors.password?.message && <p>{String(errors.password.message)}</p>}
         </div>
         <Button type="submit" color="primary" radius="md">
-          Submit
+          <input type="submit" />
         </Button>
+        <div>
+          <Link href="/auth/register">Kayıt olmak için tıklayın.</Link>
+        </div>
       </form>
     </div>
   );

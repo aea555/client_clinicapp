@@ -16,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <NextUIProvider>
-        <body>{children}</body>
+        <body className="bg-background text-foreground lightdark">
+          {children}
+        </body>
       </NextUIProvider>
     </html>
   );

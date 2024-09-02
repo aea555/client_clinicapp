@@ -15,7 +15,7 @@ export default function DashboardHeader() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const menuItems = ["Profile", "Dashboard", "Preferences", "Log Out"];
-  const targets = ["/profile", "/dashboard", "/preferences", "#"]
+  const targets = ["/profile", "/dashboard", "/preferences", "/logout"]
 
   return (
     <Navbar
@@ -29,12 +29,6 @@ export default function DashboardHeader() {
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className=""
         />
-
-        {/* <NavbarItem className="xs:hidden">
-          <Link color="foreground" className="hidden md:max-lg:block bg-red-500 p-4" href="#">
-            Dashboard
-          </Link>
-        </NavbarItem> */}
 
         <NavbarMenu>
           {menuItems.map((item, index) => (

@@ -125,7 +125,7 @@ export default function NonePage() {
                       <Table.Body>
                         <Table.Row>
                           <Table.Cell className="bg-foreground-800">
-                            <p className="text-foreground-50">DOKTOR</p>
+                            <p className="text-foreground-50">BİYOKİMYAGER</p>
                           </Table.Cell>
                           <Table.Cell className="bg-foreground-800">
                             <p className="text-foreground-50">

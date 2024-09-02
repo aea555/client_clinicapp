@@ -1,3 +1,4 @@
+import { LogOut } from "apicalls/Auth/logout";
 import { jwtDecode } from "jwt-decode";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -8,6 +9,12 @@ export default function authMiddleware(req: NextRequest) {
 
   if (req.nextUrl.pathname.startsWith("/_next")) {
     return NextResponse.next();
+  }
+
+  if (req.nextUrl.pathname === "/logout") {
+    const response = NextResponse.redirect(new URL("/auth/login", req.url));
+    response.cookies.delete("token");
+    return response;
   }
 
   if (

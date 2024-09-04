@@ -4,21 +4,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Checkbox, Input, Select, SelectItem } from "@nextui-org/react";
 import CreateRoleRequest from "apicalls/RoleRequest/CreateRoleRequest";
 import { useRouter } from "next/navigation";
-import { Alert } from "flowbite-react";
-import { useState } from "react";
+import { Alert, Spinner } from "flowbite-react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { KeyValuePair } from "types/RoleKeyValuePairs.type";
 import { z } from "zod";
 import { HiInformationCircle } from "react-icons/hi";
 
 export default function RoleRequestForm() {
+  const [submitOkay, setSubmitOkay] = useState<boolean>(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [statuscode, setStatuscode] = useState("");
+
   const roles: KeyValuePair[] = [
     { key: "doctor", label: "Doktor" },
     { key: "biochemist", label: "Biyokimyager" },
     { key: "patient", label: "Hasta" },
   ];
-
-  const [alertOpen, setAlertOpen] = useState(false);
 
   const router = useRouter();
 
@@ -38,6 +40,7 @@ export default function RoleRequestForm() {
   } = useForm<Schema>({ resolver: zodResolver(requestSchema) });
 
   const WatchRole = watch("Role");
+  console.log(WatchRole);
 
   async function onSubmit(data: Schema) {
     try {
@@ -47,15 +50,35 @@ export default function RoleRequestForm() {
         data.LastName,
         new Date(Date.now()).toISOString(),
       );
-      if (response.success) router.replace("/dashboard");
-      else setAlertOpen(true);
+      if (response.success) {
+        switch (data.Role) {
+          case "doctor":
+          case "biochemist":
+            setSubmitOkay(true);
+            router.replace("/dashboard");
+            break;
+          case "patient":
+            setSubmitOkay(true);
+            router.replace("/logout");
+            break;
+          default:
+            break;
+        }
+      } else setAlertOpen(true);
+      setStatuscode(response.statusCode.toString());
     } catch (error) {
       console.error("Unexpected error:", error);
     }
   }
 
   return (
-    <>
+    <Suspense
+      fallback={
+        <div className="text-center">
+          <Spinner size="xl" aria-label="Loading" />
+        </div>
+      }
+    >
       <form
         id="roleRequestForm"
         className="flex w-1/2 flex-col gap-4 p-4"
@@ -93,19 +116,28 @@ export default function RoleRequestForm() {
           Submit
         </Button>
         {alertOpen ? (
-        <div>
-          <Alert
-            color="failure"
-            className="bg-danger-foreground"
-            icon={HiInformationCircle}
-            onDismiss={() => setAlertOpen(false)}
-          >
-            <span className="font-medium">İstek başarısız!</span> Kontrol edip
-            tekrar deneyin.
+          <div>
+            <Alert
+              color="failure"
+              className="bg-danger-foreground"
+              icon={HiInformationCircle}
+              onDismiss={() => setAlertOpen(false)}
+            >
+              <span className="block font-medium">Kod: {statuscode}</span>
+              <span className="block font-medium">İstek başarısız!</span>
+              <span className="block font-medium">
+                Kontrol edip tekrar deneyin.
+              </span>
+            </Alert>
+          </div>
+        ) : null}
+        {submitOkay ? (
+          <Alert color="success">
+            <span className="font-medium">İşlem Başarılı! </span>
+            Lütfen sayfanız yüklenirken bekleyin...
           </Alert>
-        </div>
-      ) : null}
+        ) : null}
       </form>
-    </>
+    </Suspense>
   );
 }

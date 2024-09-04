@@ -1,56 +1,28 @@
-"use client";
-
 import {
-  Link,
   Navbar,
-  NavbarContent,
-  NavbarItem,
-  NavbarMenu,
-  NavbarMenuItem,
-  NavbarMenuToggle,
-} from "@nextui-org/react";
-import React from "react";
+  NavbarBrand,
+  NavbarCollapse,
+  NavbarLink,
+  NavbarToggle,
+} from "flowbite-react";
+import Link from "next/link";
+import { BsHospital } from "react-icons/bs";
 
 export default function DashboardHeader() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
-  const menuItems = ["Profile", "Dashboard", "Preferences", "Log Out"];
-  const targets = ["/profile", "/dashboard", "/preferences", "/logout"]
-
   return (
-    <Navbar
-      className="justify-start"
-      isBordered
-      onMenuOpenChange={setIsMenuOpen}
-      isMenuOpen={isMenuOpen}
-    >
-      <NavbarContent className="gap-4" justify="start">
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className=""
-        />
-
-        <NavbarMenu>
-          {menuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === menuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                className="w-full"
-                href={targets[index]}
-                size="lg"
-              >
-                {item}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </NavbarMenu>
-      </NavbarContent>
+    <Navbar fluid rounded>
+      <NavbarBrand as={Link} href="https://flowbite-react.com">
+        <BsHospital className="mr-3 h-6 sm:h-9"/>
+      </NavbarBrand>
+      <NavbarToggle />
+      <NavbarCollapse>
+        <NavbarLink href="/dashboard">
+          Dashboard
+        </NavbarLink>
+        <NavbarLink href="/profile">Profil</NavbarLink>
+        <NavbarLink href="/preferences">Tercihler</NavbarLink>
+        <NavbarLink className="text-red-800" href="/logout">Çıkış Yap</NavbarLink>
+      </NavbarCollapse>
     </Navbar>
   );
 }

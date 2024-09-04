@@ -11,8 +11,13 @@ import {
 import { Login } from "apicalls/Auth/login";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Alert } from "flowbite-react";
+import { HiInformationCircle } from "react-icons/hi";
 
 export default function LoginForm() {
+  const [submitFail, setSubmitFail] = React.useState<boolean>(false);
+  const [submitOkay, setSubmitOkay] = React.useState<boolean>(false);
+
   const authSchema = z.object({
     email: z.string().email({ message: "Geçerli bir email giriniz." }),
     password: z.string()
@@ -33,13 +38,13 @@ export default function LoginForm() {
     try {
       const res = await Login(data.email, data.password);
         if (res.success) {
-          console.log("LOGIN SUCCESSFUL");
+          setSubmitOkay(true);
           router.replace("/dashboard");
         } else {
-          console.error("LOGIN FAILED");
+          setSubmitFail(true);
         }
     } catch (error) {
-      console.error("Unexpected error:", error);
+      setSubmitFail(true);
     }
   };
 
@@ -75,6 +80,24 @@ export default function LoginForm() {
         </Button>
         <div>
           <Link href="/auth/register">Kayıt olmak için tıklayın.</Link>
+        </div>
+        <div>
+          {submitFail ? (
+            <Alert
+              color="failure"
+              icon={HiInformationCircle}
+              onDismiss={() => setSubmitFail(false)}
+            >
+              <span className="font-medium">İşlem Başarısız! </span>
+              Lütfen tekrar deneyin.
+            </Alert>
+          ) : null}
+          {submitOkay ? (
+            <Alert color="success">
+              <span className="font-medium">İşlem Başarılı! </span>
+              Lütfen sayfanız yüklenirken bekleyin...
+            </Alert>
+          ) : null}
         </div>
       </form>
     </div>

@@ -15,11 +15,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-      <NextUIProvider>
-        <body className="bg-background text-foreground lightdark">
-          {children}
-        </body>
-      </NextUIProvider>
+      <body
+        className="bg-background text-foreground lightdark"
+        suppressHydrationWarning
+      >
+        <NextUIProvider>{children}</NextUIProvider>
+      </body>
     </html>
   );
 }

@@ -30,6 +30,10 @@ export default function authMiddleware(req: NextRequest) {
       const userId = decoded.nameid;
       const role = decoded.role.toLowerCase();
 
+      if (req.nextUrl.pathname.startsWith("/_next")) {
+        return NextResponse.next();
+      }
+
       if (req.nextUrl.pathname.startsWith("/dashboard")) {
         const pathParts = req.nextUrl.pathname.split('/');
         const pathUserId = pathParts[3]; // Extracting the user ID from the URL

@@ -15,20 +15,26 @@ export default {
       fontFamily: {
         sans: ["var(--font-geist-sans)", ...fontFamily.sans],
       },
-    },
-    screens: {
-      sm: "640px",
-      md: "768px",
-      lg: "1024px",
-      xl: "1280px",
+      fontSize: {
+        sm2: '0.9rem'
+      }
     },
   },
   darkMode: "class",
   plugins: [
     nextui({
-      defaultExtendTheme: "dark",
+      defaultExtendTheme: "light",
       themes: {
         lightdark: {
+          extend: "light",
+          colors: {
+            background: "#e8e8e8",
+            foreground: "#242424",
+            content2: "#dedede",
+            content1: "#a4aceb",
+          },     
+        },
+        darklight: {
           extend: "dark",
           colors: {
             background: "#181c19",
@@ -51,6 +57,6 @@ export default {
           },
         },
       },
-    }),
+    }), 
   ],
 } satisfies Config;

@@ -26,7 +26,7 @@ export async function Login(email: string, password: string): Promise<ServiceRes
   }
 
   const result: ServiceResult = await response.json();
-  cookies().set("token", result.data, {secure: true});
-
+  if (result.data) cookies().set("token", result.data, {secure: true});
+  
   return result;
 }

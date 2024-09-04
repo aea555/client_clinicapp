@@ -9,8 +9,13 @@ import { Register } from "apicalls/Auth/register";
 import { useRouter } from "next/navigation";
 import DatePickerComponent from "components/ui/DatePickerComponent";
 import Link from "next/link";
+import { HiInformationCircle } from "react-icons/hi";
+import { Alert } from "flowbite-react";
 
 export default function RegisterForm() {
+  const [submitFail, setSubmitFail] = React.useState<boolean>(false);
+  const [submitOkay, setSubmitOkay] = React.useState<boolean>(false);
+
   const regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{6,20}$";
   const registerSchema = z.object({
     email: z.string().email({ message: "Geçerli bir email giriniz." }),
@@ -40,13 +45,13 @@ export default function RegisterForm() {
         data.birthDate,
       );
       if (res.success) {
-        console.log("REGISTER SUCCESSFUL");
+        setSubmitOkay(true);
         router.replace("/auth/login");
       } else {
-        console.error("REGISTER FAILED");
+        setSubmitFail(true);
       }
     } catch (error) {
-      console.error("Unexpected error:", error);
+      setSubmitFail(true);
     }
   }
 
@@ -58,14 +63,14 @@ export default function RegisterForm() {
         onSubmit={handleSubmit(onSubmit)}
         method="POST"
       >
-        <>
+        <div>
           {errors.gender?.message && (
             <p>{String(errors.gender.message) + " GENDER"}</p>
           )}
           {errors.birthDate?.message && (
             <p>{String(errors.birthDate.message)}</p>
           )}
-        </>
+        </div>
         <div>
           <Input
             id="email"
@@ -99,6 +104,24 @@ export default function RegisterForm() {
         </Button>
         <div>
           <Link href="/auth/login">Giriş yapmak için tıklayın.</Link>
+        </div>
+        <div>
+          {submitFail ? (
+            <Alert
+              color="failure"
+              icon={HiInformationCircle}
+              onDismiss={() => setSubmitFail(false)}
+            >
+              <span className="font-medium">İşlem Başarısız! </span>
+              Lütfen tekrar deneyin.
+            </Alert>
+          ) : null}
+          {submitOkay ? (
+            <Alert color="success">
+              <span className="font-medium">İşlem Başarılı! </span>
+              Lütfen sayfanız yüklenirken bekleyin...
+            </Alert>
+          ) : null}
         </div>
       </form>
     </div>

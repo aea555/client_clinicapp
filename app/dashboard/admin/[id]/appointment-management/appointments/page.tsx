@@ -1,5 +1,7 @@
+import { GetAllAppointments } from "apicalls/Appointment/GetAllAppointments";
+import AppointmentNotesUpdate from "components/partials/AppointmentNotesUpdate";
+import AppointmentStatusSelect from "components/partials/AppointmentStatusSelect";
 import {
-  Button,
   Spinner,
   Table,
   TableBody,
@@ -7,12 +9,18 @@ import {
   TableHead,
   TableHeadCell,
   TableRow,
-  TextInput,
 } from "flowbite-react";
 import React, { Suspense } from "react";
-import { MdEdit } from "react-icons/md";
 
-export default function AppointmentsManagementAdminView() {
+async function getRelatedData() {
+  const res = await GetAllAppointments();
+  if (res.success) return res.data;
+  return [];
+}
+
+export default async function AppointmentsManagementAdminView() {
+  const data = await getRelatedData();
+
   return (
     <Suspense
       fallback={
@@ -26,89 +34,48 @@ export default function AppointmentsManagementAdminView() {
           <h5 className="text-lg font-semibold">Randevular</h5>
           <Table hoverable>
             <TableHead>
+              <TableHeadCell>RANDEVU ID</TableHeadCell>
               <TableHeadCell>KLİNİK ID</TableHeadCell>
               <TableHeadCell>DOKTOR ID</TableHeadCell>
               <TableHeadCell>HASTA ID</TableHeadCell>
               <TableHeadCell>DURUM</TableHeadCell>
-              <TableHeadCell>BAŞLANGIÇ</TableHeadCell>
-              <TableHeadCell>BİTİŞ</TableHeadCell>
+              <TableHeadCell>BAŞLANGIÇ TARİHİ</TableHeadCell>
+              <TableHeadCell>BİTİŞ TARİHİ</TableHeadCell>
               <TableHeadCell>NOTLAR</TableHeadCell>
-              <TableHeadCell>VERSİYON</TableHeadCell>
-              <TableHeadCell></TableHeadCell>
+              <TableHeadCell>OLUŞTURMA TARİHİ</TableHeadCell>
+              <TableHeadCell>SON GÜNCELLENME</TableHeadCell>
             </TableHead>
             <TableBody className="divide-y">
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>7</TableCell>
-                <TableCell>4</TableCell>
-                <TableCell>
-                  <TextInput value={"AKTİF"} />
-                </TableCell>
-                <TableCell>26.08.2024 10:30</TableCell>
-                <TableCell>
-                  <TextInput value={"26.08.2024 10:37"} />
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>1</TableCell>
-                <TableCell className="flex flex-col gap-2">
-                  <Button className="bg-red-400">SİL</Button>{" "}
-                  <Button>GÜNCELLE</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>7</TableCell>
-                <TableCell>4</TableCell>
-                <TableCell>
-                  <TextInput value={"AKTİF"} />
-                </TableCell>
-                <TableCell>26.08.2024 10:30</TableCell>
-                <TableCell>
-                  <TextInput value={"26.08.2024 10:37"} />
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>1</TableCell>
-                <TableCell className="flex flex-col gap-2">
-                  <Button className="bg-red-400">SİL</Button>{" "}
-                  <Button>GÜNCELLE</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>7</TableCell>
-                <TableCell>4</TableCell>
-                <TableCell>
-                  <TextInput value={"AKTİF"} />
-                </TableCell>
-                <TableCell>26.08.2024 10:30</TableCell>
-                <TableCell>
-                  <TextInput value={"26.08.2024 10:37"} />
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>1</TableCell>
-                <TableCell className="flex flex-col gap-2">
-                  <Button className="bg-red-400">SİL</Button>{" "}
-                  <Button>GÜNCELLE</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>7</TableCell>
-                <TableCell>4</TableCell>
-                <TableCell>
-                  <TextInput value={"AKTİF"} />
-                </TableCell>
-                <TableCell>26.08.2024 10:30</TableCell>
-                <TableCell>
-                  <TextInput value={"26.08.2024 10:37"} />
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>1</TableCell>
-                <TableCell className="flex flex-col gap-2">
-                  <Button className="bg-red-400">SİL</Button>{" "}
-                  <Button>GÜNCELLE</Button>
-                </TableCell>
-              </TableRow>
+              {data?.map((v) => {
+                return (
+                  <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <TableCell>{v.id}</TableCell>
+                    <TableCell>{v.clinicId}</TableCell>
+                    <TableCell>{v.doctorId}</TableCell>
+                    <TableCell>{v.patientId}</TableCell>
+                    <TableCell className="flex flex-col gap-2">
+                      <AppointmentStatusSelect appointmentId={v.id} statusCode={v.appointmentStatus} />
+                    </TableCell>
+                    <TableCell>
+                      {new Date(v.startTime).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {v.finishTime
+                        ? new Date(v.finishTime).toLocaleString()
+                        : null}
+                    </TableCell>
+                    <TableCell className="flex flex-col gap-2">
+                      <AppointmentNotesUpdate appointmentId={v.id} notes={v.notes} />
+                    </TableCell>
+                    <TableCell>
+                      {new Date(v.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(v.updatedAt).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

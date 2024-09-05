@@ -48,7 +48,6 @@ export default function RoleRequestForm() {
         data.Role,
         data.FirstName,
         data.LastName,
-        new Date(Date.now()).toISOString(),
       );
       if (response.success) {
         switch (data.Role) {

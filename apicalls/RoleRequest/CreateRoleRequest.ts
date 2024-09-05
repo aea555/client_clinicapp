@@ -6,7 +6,7 @@ import { ServiceResult } from "types/ServiceResult";
 import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "types/Jwt.type";
 
-export default async function CreateRoleRequest(role: string, firstName: string, lastName: string, submissionDate: string) : Promise<ServiceResult>{
+export default async function CreateRoleRequest(role: string, firstName: string, lastName: string) : Promise<ServiceResult>{
   function getRequestUrl(role: string): string {
     const urlMap: { [key: string]: string } = {
       doctor: `${baseUrl}DoctorSignupRequest`,
@@ -36,7 +36,6 @@ export default async function CreateRoleRequest(role: string, firstName: string,
     "accountId": Number(accountId),
     "firstName": firstName,
     "lastName": lastName,
-    "submissionDate": submissionDate
   })
 
   const reqHeaders = new Headers();

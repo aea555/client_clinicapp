@@ -3,8 +3,6 @@ export type SignupRequest = {
   accountId: number;
   firstName: string;
   lastName: string;
-  submissionDate: string; // Alternatively, you can use Date if you're working with Date objects
-  signUpRequest: number;
 };
 
 export type SignupRequestsResult =

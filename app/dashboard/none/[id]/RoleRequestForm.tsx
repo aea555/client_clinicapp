@@ -1,10 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Select, SelectItem } from "@nextui-org/react";
+import { Input, Select, SelectItem } from "@nextui-org/react";
 import CreateRoleRequest from "apicalls/RoleRequest/CreateRoleRequest";
 import { useRouter } from "next/navigation";
-import { Alert, Spinner } from "flowbite-react";
+import { Alert, Button, Spinner } from "flowbite-react";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { KeyValuePair } from "types/RoleKeyValuePairs.type";
@@ -15,6 +15,7 @@ export default function RoleRequestForm() {
   const [submitOkay, setSubmitOkay] = useState<boolean>(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [statuscode, setStatuscode] = useState("");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   const roles: KeyValuePair[] = [
     { key: "doctor", label: "Doktor" },
@@ -26,8 +27,8 @@ export default function RoleRequestForm() {
 
   const requestSchema = z.object({
     Role: z.string(),
-    FirstName: z.string().min(1),
-    LastName: z.string().min(1),
+    FirstName: z.string().min(1).max(75),
+    LastName: z.string().min(1).max(75),
   });
 
   type Schema = z.infer<typeof requestSchema>;
@@ -39,34 +40,38 @@ export default function RoleRequestForm() {
     formState: { errors },
   } = useForm<Schema>({ resolver: zodResolver(requestSchema) });
 
-  const WatchRole = watch("Role");
-  console.log(WatchRole);
-
-  async function onSubmit(data: Schema) {
+  async function onSubmitPost(schemaData: Schema) {
+    setIsProcessing(true);
     try {
-      const response = await CreateRoleRequest(
-        data.Role,
-        data.FirstName,
-        data.LastName,
-      );
-      if (response.success) {
-        switch (data.Role) {
-          case "doctor":
-          case "biochemist":
-            setSubmitOkay(true);
-            window.location.reload();
-            break;
-          case "patient":
-            setSubmitOkay(true);
-            router.replace("/logout");
-            break;
-          default:
-            break;
-        }
-      } else setAlertOpen(true);
-      setStatuscode(response.statusCode.toString());
+      const res = await fetch("/api/roleRequest/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          role: schemaData.Role,
+          firstName: schemaData.FirstName,
+          lastName: schemaData.LastName,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        console.log("Role request create successful");
+        window.location.reload();
+      } else {
+        console.log(
+          "Role request create failed",
+          data.error || "Unknown error",
+        );
+        setAlertOpen(true);
+        setStatuscode(data?.statusCode.toString());
+      }
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.error("An error occurred:", error);
+    } finally {
+      setIsProcessing(false);
     }
   }
 
@@ -81,10 +86,14 @@ export default function RoleRequestForm() {
       <form
         id="roleRequestForm"
         className="flex w-1/2 flex-col gap-4 p-4"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmitPost)}
       >
         <div>
-          <Select label="Profil türü" {...register("Role")}>
+          <Select
+            className="bg-background"
+            label="Profil türü"
+            {...register("Role")}
+          >
             {roles.map((v) => (
               <SelectItem key={v.key}>{v.label}</SelectItem>
             ))}
@@ -98,9 +107,6 @@ export default function RoleRequestForm() {
             placeholder=""
             {...register("FirstName")}
           />
-          {errors.FirstName?.message && (
-            <p>{String(errors.FirstName.message)}</p>
-          )}
         </div>
         <div>
           <Input
@@ -109,10 +115,13 @@ export default function RoleRequestForm() {
             label="Soyad"
             {...register("LastName")}
           />
-          {errors.LastName?.message && <p>{String(errors.LastName.message)}</p>}
         </div>
-        <Button type="submit" color="primary" radius="md">
-          Submit
+        <Button
+          isProcessing={isProcessing}
+          disabled={isProcessing}
+          type="submit"
+        >
+          Gönder
         </Button>
         {alertOpen ? (
           <div>

@@ -37,7 +37,7 @@ export async function GetRequestOfAccount() : Promise<ServiceResult<SignupReques
   if (!response.ok) {
     var ErrRes : ServiceResult<SignupRequestsResult> = {
       success: false,
-      errorMessage: "Request creation failed.",
+      errorMessage: "Request fetch failed.",
       message: "",
       statusCode: response.status,
       data: null

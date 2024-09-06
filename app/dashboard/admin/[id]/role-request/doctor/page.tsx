@@ -1,5 +1,5 @@
 import { GetAllRequests } from "apicalls/RoleRequest/GetAllRequests";
-import RequestStatusSetButtons from "components/partials/RequestStatusSetButtons";
+import RequestStatusSetButtons from "app/dashboard/admin/[id]/role-request/RequestStatusSetButtons";
 import {
   Button,
   Spinner,

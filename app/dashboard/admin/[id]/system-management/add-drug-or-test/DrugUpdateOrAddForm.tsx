@@ -39,7 +39,7 @@ export default function DrugUpdateOrAddForm() {
   async function onSubmitPost(schemaData: CreateSchema) {
     setIsProcessing(true);
     try {
-      const res = await fetch("/api/createDrug", {
+      const res = await fetch("/api/drug/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +67,7 @@ export default function DrugUpdateOrAddForm() {
   async function onSubmitPut(schemaData: UpdateSchema) {
     setIsProcessing(true);
     try {
-      const res = await fetch("/api/updateDrug", {
+      const res = await fetch("/api/drug/update", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

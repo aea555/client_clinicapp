@@ -1,27 +1,19 @@
-import { Appointment } from "./AllAppointmentsResponseData.type";
+import { BaseType } from "./BaseType.type";
 import { Test } from "./Test.type";
 
-export interface AppointmentTest {
+export interface AppointmentTest extends BaseType {
   appointmentId: number;
   appointment: null;
   testId: number; 
   test: Test;
-  id: number;
-  createdAt: string; 
-  updatedAt: string; 
-  isDeleted: boolean;
 }
 
-export interface AppointmentTestResult {
+export interface AppointmentTestResult extends BaseType {
   appointmentTestId: number;
-  appointmentTest: AppointmentTest;
+  appointmentTest: AppointmentTest | null;
   resultDate: string;
   value: number;
   biochemistId: number;
   biochemist: null;
   resultFlag: number;
-  id: number;
-  createdAt: string; 
-  updatedAt: string; 
-  isDeleted: boolean;
 }

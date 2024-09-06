@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Checkbox, Input, Select, SelectItem } from "@nextui-org/react";
+import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import CreateRoleRequest from "apicalls/RoleRequest/CreateRoleRequest";
 import { useRouter } from "next/navigation";
 import { Alert, Spinner } from "flowbite-react";
@@ -54,7 +54,7 @@ export default function RoleRequestForm() {
           case "doctor":
           case "biochemist":
             setSubmitOkay(true);
-            router.replace("/dashboard");
+            window.location.reload();
             break;
           case "patient":
             setSubmitOkay(true);

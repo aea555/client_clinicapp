@@ -9,6 +9,8 @@ import {
   TableRow,
 } from "flowbite-react";
 import React, { Suspense } from "react";
+import ResultFlagUpdate from "./ResultFlagUpdate";
+import ResultValueUpdate from "./ResultValueUpdate";
 
 async function getRelatedData() {
   const res = await GetAllAppointmentTestResults();
@@ -36,21 +38,37 @@ export default async function TestsManagementAdminView() {
               <TableHeadCell>TAHLİL ID</TableHeadCell>
               <TableHeadCell>TAHLİL ADI</TableHeadCell>
               <TableHeadCell>BİYOKİMYAGER ID</TableHeadCell>
-              <TableHeadCell>SONUÇ TARİHİ</TableHeadCell>
               <TableHeadCell>SONUÇ</TableHeadCell>
+              <TableHeadCell>SONUÇ TARİHİ</TableHeadCell>
               <TableHeadCell>NORMALİTE</TableHeadCell>
             </TableHead>
             <TableBody className="divide-y">
               {data?.map((v) => {
                 return (
                   <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                    <TableCell>{v.appointmentTest.appointmentId}</TableCell>
-                    <TableCell>{v.appointmentTest.testId}</TableCell>
-                    <TableCell>{v.appointmentTest.test.name}</TableCell>
+                    <TableCell>{v?.appointmentTest?.appointmentId}</TableCell>
+                    <TableCell>{v?.appointmentTest?.testId}</TableCell>
+                    <TableCell>{v?.appointmentTest?.test.name}</TableCell>
                     <TableCell>{v.biochemistId}</TableCell>
-                    <TableCell>{v.resultDate}</TableCell>
-                    <TableCell>{v.value}</TableCell>
-                    <TableCell>{v.resultFlag}</TableCell>
+                    <TableCell className="flex flex-col flex-wrap gap-2">
+                      <ResultValueUpdate
+                        id={v.id}
+                        appointmentTestId={v.appointmentTestId}
+                        biochemistId={v.biochemistId}
+                        value={v.value.toString()}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {new Date(v.resultDate).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="flex flex-col flex-wrap gap-2">
+                      <ResultFlagUpdate
+                        id={v.id}
+                        biochemistId={v.biochemistId}
+                        appointmentTestId={v.appointmentTestId}
+                        resultFlag={v.resultFlag}
+                      />
+                    </TableCell>
                   </TableRow>
                 );
               })}

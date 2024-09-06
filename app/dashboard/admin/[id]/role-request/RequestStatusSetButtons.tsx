@@ -19,7 +19,7 @@ export default function RequestStatusSetButtons({ requestId, role }: Props) {
     setIsProcessing(true);
     type === 1 ? setIsProcessingAccept(true) : setIsProcessingDeny(true);
     try {
-      const res = await fetch("/api/setRequestStatus", {
+      const res = await fetch("/api/roleRequest/update", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

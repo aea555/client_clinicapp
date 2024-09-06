@@ -1,5 +1,5 @@
-import DrugUpdateOrAddForm from "components/partials/DrugUpdateOrAddForm";
-import TestUpdateOrAddForm from "components/partials/TestUpdateOrAddForm";
+import DrugUpdateOrAddForm from "app/dashboard/admin/[id]/system-management/add-drug-or-test/DrugUpdateOrAddForm";
+import TestUpdateOrAddForm from "app/dashboard/admin/[id]/system-management/add-drug-or-test/TestUpdateOrAddForm";
 import { Button, Label, Radio, Spinner, TextInput } from "flowbite-react";
 import React, { Suspense } from "react";
 

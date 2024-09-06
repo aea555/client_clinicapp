@@ -1,38 +1,61 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { parseZonedDateTime, Time, parseTime } from "@internationalized/date";
+import { TimeInput } from "@nextui-org/react";
 import { Button, Label, Radio, TextInput } from "flowbite-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-export default function TestUpdateOrAddForm() {
+export default function ClinicUpdateOrAddForm() {
   const [formMode, setFormMode] = React.useState<string>("add");
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
+  const [openTime, setOpenTime] = React.useState<string>("09:00");
+  const [closeTime, setCloseTime] = React.useState<string>("16:00");
+  const [breakStartTime, setBreakStartTime] = React.useState<string>("12:30");
+  const [breakEndTime, setBreakEndTime] = React.useState<string>("13:30");
 
   function handleChangeRadio(event: React.ChangeEvent<HTMLInputElement>) {
     setFormMode(event.target.value);
   }
 
   const updateSchema = z.object({
-    id: z.string().min(1),
-    name: z.string().optional(),
-    unitType: z.string().optional(),
-    rangeStartMale: z.string().max(100).optional(),
-    rangeEndMale: z.string().max(100).optional(),
-    rangeStartFemale: z.string().max(100).optional(),
-    rangeEndFemale: z.string().max(100).optional(),
-    desc: z.string().optional(),
+    id: z
+      .number()
+      .min(1)
+      .transform((val) => (val ? Number(val) : null)),
+    name: z.string().optional().nullable(),
+    address: z.string().max(100).optional().nullable(),
   });
 
+  function handleTimeChange(value: Time, to: string) {
+    const formattedTime = `${value?.hour.toString().padStart(2, "0")}:${value?.minute
+      .toString()
+      .padStart(2, "0")}`;
+    console.log(formattedTime)
+
+    switch (to) {
+      case "openTime":
+        setOpenTime(formattedTime);
+        break;
+      case "closeTime":
+        setCloseTime(formattedTime);
+        break;
+      case "breakStartTime":
+        setBreakStartTime(formattedTime);
+        break;
+      case "breakEndTime":
+        setBreakEndTime(formattedTime);
+        break;
+      default:
+        break;
+    }
+  }
+
   const createSchema = z.object({
-    name: z.string(),
-    unitType: z.string(),
-    rangeStartMale: z.string().min(1).max(100),
-    rangeEndMale: z.string().min(1).max(100),
-    rangeStartFemale: z.string().min(1).max(100),
-    rangeEndFemale: z.string().min(1).max(100),
-    desc: z.string().optional(),
+    name: z.string().max(100),
+    address: z.string().max(500),
   });
 
   type UpdateSchema = z.infer<typeof updateSchema>;
@@ -41,7 +64,7 @@ export default function TestUpdateOrAddForm() {
   const {
     register: registerPost,
     handleSubmit: handleSubmitPost,
-    formState: formStatePost,
+    formState: {errors: postErrors},
   } = useForm<CreateSchema>({
     resolver: zodResolver(createSchema),
   });
@@ -49,7 +72,7 @@ export default function TestUpdateOrAddForm() {
   const {
     register: registerPut,
     handleSubmit: handleSubmitPut,
-    formState: formStatePut,
+    formState: {errors: putErrors},
   } = useForm<UpdateSchema>({
     resolver: zodResolver(updateSchema),
   });
@@ -57,29 +80,28 @@ export default function TestUpdateOrAddForm() {
   async function onSubmitPost(schemaData: CreateSchema) {
     setIsProcessing(true);
     try {
-      const res = await fetch("/api/createTest", {
+      const res = await fetch("/api/clinic/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: schemaData.name,
-          unitType: schemaData.unitType,
-          rangeStartMale: Number(schemaData.rangeStartMale),
-          rangeEndMale: Number(schemaData.rangeEndMale),
-          rangeStartFemale: Number(schemaData.rangeStartFemale),
-          rangeEndFemale: Number(schemaData.rangeEndFemale),
-          desc: schemaData.desc,
+          address: schemaData.address,
+          openTime: openTime + ":00",
+          closeTime: closeTime + ":00",
+          breakStartTime: breakStartTime + ":00",
+          breakEndTime: breakEndTime + ":00",
         }),
       });
 
       const data = await res.json();
 
       if (data.success) {
-        console.log("Test create successful");
+        console.log("Clinic create successful");
         window.location.reload();
       } else {
-        console.log("Test create failed", data.error || "Unknown error");
+        console.log("Clinic create failed", data.error || "Unknown error");
       }
     } catch (error) {
       console.error("An error occurred:", error);
@@ -91,7 +113,7 @@ export default function TestUpdateOrAddForm() {
   async function onSubmitPut(schemaData: UpdateSchema) {
     setIsProcessing(true);
     try {
-      const res = await fetch("/api/updateTest", {
+      const res = await fetch("/api/clinic/update", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -99,22 +121,21 @@ export default function TestUpdateOrAddForm() {
         body: JSON.stringify({
           id: Number(schemaData.id),
           name: schemaData.name,
-          unitType: schemaData.unitType,
-          rangeStartMale: Number(schemaData.rangeStartMale),
-          rangeEndMale: Number(schemaData.rangeEndMale),
-          rangeStartFemale: Number(schemaData.rangeStartFemale),
-          rangeEndFemale: Number(schemaData.rangeEndFemale),
-          desc: schemaData.desc,
+          address: schemaData.address,
+          openTime: openTime + ":00",
+          closeTime: closeTime + ":00",
+          breakStartTime: breakStartTime + ":00",
+          breakEndTime: breakEndTime + ":00",
         }),
       });
 
       const data = await res.json();
 
       if (data.success) {
-        console.log("Test update successful");
+        console.log("Clinic update successful");
         window.location.reload();
       } else {
-        console.log("Test update failed", data.error || "Unknown error");
+        console.log("Clinic update failed", data.error || "Unknown error");
       }
     } catch (error) {
       console.error("An error occurred:", error);
@@ -124,6 +145,7 @@ export default function TestUpdateOrAddForm() {
   }
 
   return (
+    <>
     <form
       onSubmit={
         formMode === "add"
@@ -144,7 +166,7 @@ export default function TestUpdateOrAddForm() {
             onChange={handleChangeRadio}
             checked={formMode === "add"}
           />
-          <Label htmlFor="eklet">Tahlil Birimi Ekle</Label>
+          <Label htmlFor="eklet">Klinik Ekle</Label>
         </div>
         <div className="flex items-center gap-2">
           <Radio
@@ -154,15 +176,15 @@ export default function TestUpdateOrAddForm() {
             checked={formMode === "update"}
             onChange={handleChangeRadio}
           />
-          <Label htmlFor="guncellet">Tahlil Birimi Güncelle</Label>
+          <Label htmlFor="guncellet">Klinik Güncelle</Label>
         </div>
       </fieldset>
       <div className="flex flex-col gap-3">
         {formMode === "update" ? (
           <div className="mb-2 block">
-            <Label htmlFor="tahlilid" value="Tahlil Id" />
+            <Label htmlFor="tahlilid" value="Klinik Id" />
             <TextInput
-              {...registerPut("id")}
+              {...registerPut("id", { valueAsNumber: true })}
               id="tahlilid"
               type="number"
               required
@@ -173,14 +195,14 @@ export default function TestUpdateOrAddForm() {
         <div className="flex flex-row flex-wrap gap-3">
           <div>
             <div className="mb-2 block">
-              <Label className="block" htmlFor="tahlilad" value="Tahlil Adı" />
+              <Label className="block" htmlFor="tahlilad" value="Klinik Adı" />
               {formMode === "update" ? (
                 <div>
                   <span className="text-sm font-medium">{"(Opsiyonel)"}</span>
                   <TextInput
                     id="tahlilad"
                     type="text"
-                    {...registerPut("name")} // Conditionally apply register
+                    {...registerPut("name")}
                     shadow
                   />
                 </div>
@@ -195,16 +217,16 @@ export default function TestUpdateOrAddForm() {
               )}
             </div>
             <div className="mb-2 block">
-              <Label className="block" htmlFor="birim" value="Ölçek Tipi" />
+              <Label className="block" htmlFor="birim" value="Adres" />
               {formMode === "update" ? (
                 <div>
+                  <span className="text-sm font-medium">{"(Opsiyonel)"}</span>
                   <TextInput
                     id="birim"
                     type="text"
                     shadow
-                    {...registerPut("unitType")}
+                    {...registerPut("address")}
                   />
-                  <span className="text-sm font-medium">{"(Opsiyonel)"}</span>
                 </div>
               ) : (
                 <TextInput
@@ -212,7 +234,7 @@ export default function TestUpdateOrAddForm() {
                   type="text"
                   required
                   shadow
-                  {...registerPost("unitType")}
+                  {...registerPost("address")}
                 />
               )}
             </div>
@@ -220,133 +242,91 @@ export default function TestUpdateOrAddForm() {
               <Label
                 className="block"
                 htmlFor="altsinirerkek"
-                value="Alt Normal Sınır (Erkek)"
+                value="Açılış Saati"
               />
-              {formMode === "update" ? (
-                <div>
-                  <TextInput
-                    id="altsinirerkek"
-                    type="text"
-                    shadow
-                    {...registerPost("rangeStartMale")}
-                    {...registerPut("rangeStartMale")}
-                  />
+              <div>
+                {formMode === "update" ? (
                   <span className="text-sm font-medium">{"(Opsiyonel)"}</span>
-                </div>
-              ) : (
-                <TextInput
-                  id="altsinirerkek"
-                  type="text"
-                  required
-                  shadow
-                  {...registerPost("rangeStartMale")}
+                ) : null}
+
+                <TimeInput
+                  onChange={(v) => handleTimeChange(v, "openTime")}
+                  className="rounded-none"
+                  hourCycle={24}
+                  hideTimeZone
+                  defaultValue={new Time(9, 0)}
+                  label={null}
+                  aria-label="Açılış Saati"
                 />
-              )}
+              </div>
             </div>
             <div className="mb-2 block">
               <Label
                 className="block"
-                htmlFor="ustsinirerkek"
-                value="Üst Normal Sınır (Erkek)"
+                htmlFor="altsinirerkek"
+                value="Kapanış Saati"
               />
-              {formMode === "update" ? (
-                <div>
+              <div>
+                {formMode === "update" ? (
                   <span className="text-sm font-medium">{"(Opsiyonel)"}</span>
-                  <TextInput
-                    id="ustsinirerkek"
-                    type="text"
-                    shadow
-                    {...registerPut("rangeEndMale")}
-                  />
-                </div>
-              ) : (
-                <TextInput
-                  id="ustsinirerkek"
-                  type="text"
-                  required
-                  shadow
-                  {...registerPost("rangeEndMale")}
+                ) : null}
+
+                <TimeInput
+                  onChange={(v) => handleTimeChange(v, "closeTime")}
+                  className="rounded-none"
+                  hourCycle={24}
+                  hideTimeZone
+                  defaultValue={new Time(16, 30)}
+                  label={null}
+                  aria-label="Kapanış Saati"
                 />
-              )}
+              </div>
             </div>
           </div>
           <div>
             <div className="mb-2 block">
               <Label
                 className="block"
-                htmlFor="altsinirkadin"
-                value="Alt Normal Sınır (Kadın)"
+                htmlFor="altsinirerkek"
+                value="Paydos Başlangıç Saati"
               />
-              {formMode === "update" ? (
-                <div>
+              <div>
+                {formMode === "update" ? (
                   <span className="text-sm font-medium">{"(Opsiyonel)"}</span>
-                  <TextInput
-                    id="altsinirkadin"
-                    type="text"
-                    shadow
-                    {...registerPut("rangeStartFemale")}
-                  />
-                </div>
-              ) : (
-                <TextInput
-                  id="altsinirkadin"
-                  type="text"
-                  required
-                  shadow
-                  {...registerPost("rangeStartFemale")}
+                ) : null}
+
+                <TimeInput
+                  onChange={(v) => handleTimeChange(v, "breakStartTime")}
+                  className="rounded-none"
+                  hourCycle={24}
+                  hideTimeZone
+                  defaultValue={new Time(12, 30)}
+                  label={null}
+                  aria-label="Paydos Başlangıç Saati"
                 />
-              )}
+              </div>
             </div>
             <div className="mb-2 block">
               <Label
                 className="block"
-                htmlFor="ustsinirkadin"
-                value="Üst Normal Sınır (Kadın)"
+                htmlFor="altsinirerkek"
+                value="Paydos Bitiş Saati"
               />
-              {formMode === "update" ? (
-                <div>
+              <div> 
+                {formMode === "update" ? (
                   <span className="text-sm font-medium">{"(Opsiyonel)"}</span>
-                  <TextInput
-                    id="ustsinirkadin"
-                    type="text"
-                    shadow
-                    {...registerPut("rangeEndFemale")}
-                  />
-                </div>
-              ) : (
-                <TextInput
-                  id="ustsinirkadin"
-                  type="text"
-                  required
-                  shadow
-                  {...registerPost("rangeEndFemale")}
+                ) : null}
+
+                <TimeInput
+                  onChange={(v) => handleTimeChange(v, "breakEndTime")}
+                  className="rounded-none"
+                  hourCycle={24}
+                  hideTimeZone
+                  defaultValue={new Time(13, 30)}
+                  label={null}
+                  aria-label="Paydos Bitiş Saati"
                 />
-              )}
-            </div>
-            <div className="mb-2 block">
-              <Label
-                className="block"
-                htmlFor="desc"
-                value="Açıklama (Opsiyonel)"
-              />
-              {formMode === "update" ? (
-                <div>
-                  <span className="text-sm font-medium">{"(Opsiyonel)"}</span>
-                  <TextInput
-                    {...registerPut("desc")}
-                    id="desc"
-                    type="text"
-                    shadow
-                  />
-                </div>
-              ) : (
-                <TextInput
-                  {...registerPost("desc")}
-                  id="desc"
-                  type="text"
-                  shadow
-                />
-              )}
+              </div>
             </div>
           </div>
         </div>
@@ -355,5 +335,6 @@ export default function TestUpdateOrAddForm() {
         Gönder
       </Button>
     </form>
+    </>
   );
 }

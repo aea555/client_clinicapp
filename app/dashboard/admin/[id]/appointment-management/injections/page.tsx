@@ -1,3 +1,4 @@
+import { GetAllInjections } from "apicalls/Injection/GetAllInjections";
 import {
   Button,
   Spinner,
@@ -10,8 +11,17 @@ import {
   TextInput,
 } from "flowbite-react";
 import React, { Suspense } from "react";
+import InjectionFieldUpdate from "./InjectionFieldUpdate";
 
-export default function InjectionsManagementAdminView() {
+async function getRelatedData() {
+  const res = await GetAllInjections();
+  if (res.success) return res.data;
+  return [];
+}
+
+export default async function InjectionsManagementAdminView() {
+  const data = await getRelatedData();
+
   return (
     <Suspense
       fallback={
@@ -30,66 +40,21 @@ export default function InjectionsManagementAdminView() {
               <TableHeadCell>DOKTOR ID</TableHeadCell>
               <TableHeadCell>İLAÇ ID</TableHeadCell>
               <TableHeadCell>TARİH</TableHeadCell>
-              <TableHeadCell></TableHeadCell>
             </TableHead>
             <TableBody className="divide-y">
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>
-                  <TextInput value={7} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={4} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={15} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={"26.08.2024 10:30"} />
-                </TableCell>
-                <TableCell className="flex flex-col gap-2">
-                  <Button className="bg-red-400">SİL</Button>{" "}
-                  <Button>GÜNCELLE</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>
-                  <TextInput value={7} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={4} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={15} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={"26.08.2024 10:30"} />
-                </TableCell>
-                <TableCell className="flex flex-col gap-2">
-                  <Button className="bg-red-400">SİL</Button>{" "}
-                  <Button>GÜNCELLE</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>
-                  <TextInput value={7} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={4} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={15} />
-                </TableCell>
-                <TableCell>
-                  <TextInput value={"26.08.2024 10:30"} />
-                </TableCell>
-                <TableCell className="flex flex-col gap-2">
-                  <Button className="bg-red-400">SİL</Button>{" "}
-                  <Button>GÜNCELLE</Button>
-                </TableCell>
-              </TableRow>
+              {data?.map((v) => {
+                return (
+                  <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <TableCell>{v.id}</TableCell>
+                    <TableCell>
+                      <InjectionFieldUpdate id={v.id} patientId={v.patientId.toString()} />
+                    </TableCell>
+                    <TableCell><InjectionFieldUpdate id={v.id} doctorId={v.doctorId.toString()} /></TableCell>
+                    <TableCell><InjectionFieldUpdate id={v.id} drugId={v.drugId.toString()} /></TableCell>
+                    <TableCell>{v.createdAt}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

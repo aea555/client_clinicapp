@@ -1,4 +1,5 @@
-export interface Drug {
-  id: number
+import { BaseType } from "./BaseType.type"
+
+export interface Drug extends BaseType {
   name: string
 }

@@ -1,6 +1,6 @@
 import { GetAllAppointments } from "apicalls/Appointment/GetAllAppointments";
-import AppointmentNotesUpdate from "components/partials/AppointmentNotesUpdate";
-import AppointmentStatusSelect from "components/partials/AppointmentStatusSelect";
+import AppointmentNotesUpdate from "app/dashboard/admin/[id]/appointment-management/appointments/AppointmentNotesUpdate";
+import AppointmentStatusSelect from "app/dashboard/admin/[id]/appointment-management/appointments/AppointmentStatusSelect";
 import {
   Spinner,
   Table,

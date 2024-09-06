@@ -25,7 +25,7 @@ export default function AppointmentStatusSelect({
   async function handleSubmit() {
     setIsProcessing(true);
     try {
-      const res = await fetch("/api/updateAppointment", {
+      const res = await fetch("/api/appointment/update", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,6 @@
-export interface Test {
-  id: number
+import { BaseType } from "./BaseType.type"
+
+export interface Test extends BaseType {
   name: string
   unitType: string
   rangeStartMale: number

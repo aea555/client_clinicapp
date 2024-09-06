@@ -1,4 +1,6 @@
-export type SignupRequest = {
+import { BaseType } from "./BaseType.type";
+
+export interface SignupRequest extends BaseType {
   id: number;
   accountId: number;
   firstName: string;

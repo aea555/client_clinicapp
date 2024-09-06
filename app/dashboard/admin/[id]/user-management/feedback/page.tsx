@@ -1,3 +1,4 @@
+import { GetAllFeedbacks } from "apicalls/Feedback/GetAllFeedbacks";
 import {
   Button,
   Spinner,
@@ -11,8 +12,17 @@ import {
   TextInput,
 } from "flowbite-react";
 import React, { Suspense } from "react";
+import FeedbackRemoveButton from "./FeedbackRemoveButton";
 
-export default function FeedbacksManagementAdminView() {
+async function getRelatedData() {
+  const res = await GetAllFeedbacks();
+  if (res.success) return res.data;
+  return [];
+}
+
+export default async function FeedbacksManagementAdminView() {
+  const data = await getRelatedData();
+
   return (
     <Suspense
       fallback={
@@ -37,74 +47,37 @@ export default function FeedbacksManagementAdminView() {
               <TableHeadCell></TableHeadCell>
             </TableHead>
             <TableBody className="divide-y">
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>6</TableCell>
-                <TableCell>18</TableCell>
-                <TableCell>10</TableCell>
-                <TableCell>03.09.2024 16:45</TableCell>
-                <TableCell>
-                  <TextInput value={5} />
-                </TableCell>
-                <TableCell>
-                  <Textarea
-                    rows={3}
-                    className="p-3"
-                    value={
-                      "İşini iyi yapan bir doktor, herkese tavsiye ederim."
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <span className="font-bold text-green-600">GÖRÜNÜR</span>
-                </TableCell>
-                <TableCell className="flex flex-col gap-3">
-                  <Button>GÜNCELLE</Button>
-                  <Button className="bg-red-400">KALDIR</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>2</TableCell>
-                <TableCell>3</TableCell>
-                <TableCell>21</TableCell>
-                <TableCell>16</TableCell>
-                <TableCell>01.09.2024 10:30</TableCell>
-                <TableCell>
-                  <TextInput value={4} />
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>
-                  <span className="font-bold text-green-600">GÖRÜNÜR</span>
-                </TableCell>
-                <TableCell className="flex flex-col gap-3">
-                  <Button>GÜNCELLE</Button>
-                  <Button className="bg-red-400">KALDIR</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>6</TableCell>
-                <TableCell>18</TableCell>
-                <TableCell>10</TableCell>
-                <TableCell>03.09.2024 16:45</TableCell>
-                <TableCell>
-                  <TextInput value={1} />
-                </TableCell>
-                <TableCell>
-                  <Textarea
-                    rows={3}
-                    className="p-3"
-                    value={"Lan böyle doktor mu olur a..."}
-                  />
-                </TableCell>
-                <TableCell>
-                  <span className="font-bold text-red-600">KALDIRILDI</span>
-                </TableCell>
-                <TableCell className="flex flex-col gap-3">
-                  <Button>GÜNCELLE</Button>
-                  <Button className="bg-red-400">KALDIR</Button>
-                </TableCell>
-              </TableRow>
+              {data?.map((v) => {
+                return (
+                  <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <TableCell>{v.id}</TableCell>
+                    <TableCell>{v.patientId}</TableCell>
+                    <TableCell>{v.doctorId}</TableCell>
+                    <TableCell>{v.appointmentId}</TableCell>
+                    <TableCell>
+                      {new Date(v.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell>{v.rating}</TableCell>
+                    <TableCell>
+                      <Textarea disabled rows={3} className="p-3" defaultValue={v?.comment} />
+                    </TableCell>
+                    <TableCell>
+                      {v.isDeleted ? (
+                        <span className="font-bold text-red-600">
+                          KALDIRILDI
+                        </span>
+                      ) : (
+                        <span className="font-bold text-green-600">
+                          GÖRÜNÜR
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <FeedbackRemoveButton feedbackId={v.id}/>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

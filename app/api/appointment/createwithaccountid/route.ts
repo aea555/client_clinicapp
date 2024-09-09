@@ -1,19 +1,22 @@
-import CreateRoleRequest from "apicalls/RoleRequest/CreateRoleRequest";
+import { CreateAppointmentWithAccountId } from "apicalls/Appointment/CreateAppointmentWithAccountId";
 import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const {
-    role, firstName, lastName
+    clinicId,
+    doctorId,
+    accountId,
+    startTime
   } = await request.json();
 
   let result;
-  result = await CreateRoleRequest(
-    role, firstName, lastName
+  result = await CreateAppointmentWithAccountId(
+    clinicId,
+    doctorId,
+    accountId,
+    startTime
   );
 
   if (result.success) {
-    if (role && role === "patient")
-      return NextResponse.redirect(new URL("/logout", request.url))
-
     return NextResponse.json({ success: true });
   } else {
     return NextResponse.json({ success: false });

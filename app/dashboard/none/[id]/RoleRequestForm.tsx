@@ -2,28 +2,26 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input, Select, SelectItem } from "@nextui-org/react";
-import CreateRoleRequest from "apicalls/RoleRequest/CreateRoleRequest";
-import { useRouter } from "next/navigation";
 import { Alert, Button, Spinner } from "flowbite-react";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { KeyValuePair } from "types/RoleKeyValuePairs.type";
 import { z } from "zod";
 import { HiInformationCircle } from "react-icons/hi";
+import { useRouter } from "next/navigation";
 
 export default function RoleRequestForm() {
   const [submitOkay, setSubmitOkay] = useState<boolean>(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [statuscode, setStatuscode] = useState("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const router = useRouter();
 
   const roles: KeyValuePair[] = [
     { key: "doctor", label: "Doktor" },
     { key: "biochemist", label: "Biyokimyager" },
     { key: "patient", label: "Hasta" },
   ];
-
-  const router = useRouter();
 
   const requestSchema = z.object({
     Role: z.string(),
@@ -55,18 +53,23 @@ export default function RoleRequestForm() {
         }),
       });
 
-      const data = await res.json();
+      if (schemaData.Role !== "patient") {
+        const data = await res.json();
 
-      if (data.success) {
-        console.log("Role request create successful");
-        window.location.reload();
-      } else {
-        console.log(
-          "Role request create failed",
-          data.error || "Unknown error",
-        );
-        setAlertOpen(true);
-        setStatuscode(data?.statusCode.toString());
+        if (data.success) {
+          console.log("Role request create successful");
+          window.location.reload();
+        } else {
+          console.log(
+            "Role request create failed",
+            data.error || "Unknown error",
+          );
+          setAlertOpen(true);
+          setStatuscode(data?.statusCode.toString());
+        }
+      }
+      else {
+        router.replace("/logout");
       }
     } catch (error) {
       console.error("An error occurred:", error);

@@ -2,10 +2,10 @@ import React from "react"
 
 export function mapAppointmentStatusToSpan(code: number): React.JSX.Element{
   const statusMap: {[key: number]: React.JSX.Element} = {
-    0: <span className="font-bold text-yellow-500">ONAYLANDI</span>,
+    0: <span className="font-bold text-blue-500">ONAYLANDI</span>,
     1: <span className="font-bold text-green-500">TAMAMLANDI</span>,
     2: <span className="font-bold text-red-500">İPTAL EDİLDİ</span>,
-    3: <span className="font-bold text-violet-900">HASTA GELMEDİ</span>,
+    3: <span className="font-bold text-pink-600">HASTA GELMEDİ</span>,
   }
   return statusMap[code] || <span className="font-bold text-black">BULUNAMADI</span>
 }

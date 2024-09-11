@@ -2,23 +2,17 @@
 
 import { env } from "env";
 import { cookies } from "next/headers";
-import {
-  Appointment,
-  GetAllAppointmentsResponse,
-} from "types/AllAppointmentsResponseData.type";
 import { ServiceResult } from "types/ServiceResult";
+import { Prescription } from "types/Prescription.type";
 
-export async function UpdateAppointment(
-  appointmentId: number | string,
-  notes: string | null,
-  status: number | null,
-  finishTime: string | null,
-): Promise<ServiceResult<Appointment>> {
+export async function CreatePrescription(
+  doctorId: number, patientId: number, appointmentId: number, durationDays: number, notes?: string | null
+): Promise<ServiceResult<Prescription>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
 
   if (!token) {
-    var ErrRes: ServiceResult<Appointment> = {
+    var ErrRes: ServiceResult<Prescription> = {
       success: false,
       errorMessage: "Unauthorized (401)",
       message: "",
@@ -32,25 +26,22 @@ export async function UpdateAppointment(
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
 
-  const requestUrl = `${baseUrl}Appointment`;
+  const requestUrl = `${baseUrl}Prescription`;
 
   const reqBody = JSON.stringify({
-    id: Number(appointmentId),
-    ...(finishTime !== null && finishTime !== '' && { finishTime }),  
-    ...(notes !== null && notes !== '' && { notes }),  
-    ...(status !== null && { appointmentStatus: status }),  
+    doctorId, patientId, appointmentId, durationDays, notes
   });
 
   const response = await fetch(requestUrl, {
-    method: "PUT",
+    method: "POST",
     headers: reqHeaders,
-    body: reqBody
+    body: reqBody,
   });
 
   if (!response.ok) {
-    var ErrRes: ServiceResult<Appointment> = {
+    var ErrRes: ServiceResult<Prescription> = {
       success: false,
-      errorMessage: "Appointment Update Failed",
+      errorMessage: "Prescription Create Failed",
       message: "",
       statusCode: response.status,
       data: null,
@@ -58,6 +49,6 @@ export async function UpdateAppointment(
     return ErrRes;
   }
 
-  const result: ServiceResult<Appointment> = await response.json();
+  const result: ServiceResult<Prescription> = await response.json();
   return result;
 }

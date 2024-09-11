@@ -1,35 +1,27 @@
-"use client";
+import { Spinner } from "flowbite-react";
+import React, { Suspense } from "react";
+import AddPrescription from "./AddPrescription";
+import Tests from "./Tests";
+import AddNote from "./AddNote";
+import AddTest from "./AddTest";
+import CompleteAppointment from "./CompleteAppointment";
+import { GetAppointment } from "apicalls/Appointment/GetAppointment";
+import { redirect } from "next/navigation";
 
-import { Button, Dropdown, Label, Spinner, Textarea, TextInput } from "flowbite-react";
-import React, { Suspense, useState } from "react";
-import { FaRegTrashAlt } from "react-icons/fa";
+async function fetchAppointment(aid: string) {
+  const appointment = await GetAppointment({ appointmentId: Number(aid) });
+  if (!appointment.success) return undefined
+  return appointment.data;
+}
 
-export default function AppointmentPageDoctor() {
-  const [prescription, setPrescription] = useState<string[]>([]);
-  const [test, setTest] = useState<string[]>([]);
-
-  function onPressDropdown(val: string) {
-    if (!prescription.includes(val)) {
-      setPrescription([...prescription, val]);
-    }
-  }
-
-  function onPressDelete(val: string) {
-    if (prescription.includes(val)) {
-      setPrescription([...prescription.filter((p) => p !== val)]);
-    }
-  }
-
-  function onPressTest(val: string) {
-    if (!test.includes(val)) {
-      setTest([...test, val]);
-    }
-  }
-
-  function onPressDeleteTest(val: string) {
-    if (test.includes(val)) {
-      setTest([...test.filter((p) => p !== val)]);
-    }
+export default async function AppointmentPageDoctor({
+  params: { aid },
+}: {
+  params: { aid: string };
+}) {
+  const appointment = await fetchAppointment(aid)
+  if (!appointment) {
+    redirect('/dashboard')
   }
 
   return (
@@ -40,122 +32,36 @@ export default function AppointmentPageDoctor() {
         </div>
       }
     >
-    <div className="p-6">
-      <div className="flex flex-col gap-6 rounded-lg bg-white p-6">
-        <div id="first-row" className="flex flex-row">
-          <div id="first-col-of-row-recete" className="basis-1/2 p-1">
-            <div className="rounded-t-md bg-content2 p-3">
-              <h5 className="text-lg font-medium">Reçete</h5>
-              <Dropdown label="İlaç Ekle" inline>
-                <Dropdown.Item onClick={() => onPressDropdown("Arveles")}>
-                  Arveles
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => onPressDropdown("Parol")}>
-                  Parol
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => onPressDropdown("[İlaç İsmi]")}>
-                  [İlaç İsmi]
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => onPressDropdown("[İlaç İsmi]")}>
-                  [İlaç İsmi]
-                </Dropdown.Item>
-              </Dropdown>
-            </div>
-            <div className="flex flex-col gap-3 rounded-b-md border-2 border-content2 bg-white p-3">
-              {prescription.map((p) => (
-                <div className="flex flex-row justify-between rounded-md p-2 hover:bg-content2">
-                  <p className="font-semibold">{p}</p>
-                  <FaRegTrashAlt
-                    onClick={() => onPressDelete(p)}
-                    className="my-auto text-red-600 hover:cursor-pointer hover:opacity-85"
-                  />
-                </div>
-              ))}
-            </div>
+      <div className="p-6">
+        <div className="grid grid-cols-1 gap-6 rounded-lg bg-white p-6 md:grid-cols-2">
+          <div className="">
+            <AddPrescription
+              doctorId={Number(appointment?.doctorId)}
+              patientId={Number(appointment?.patientId)}
+              appointmentId={Number(aid)}
+            />
           </div>
-          <div id="second-col-of-row-tahlil" className="basis-1/2 p-1">
-            <div className="rounded-t-md bg-content2 p-3">
-              <h5 className="text-lg font-medium">Tahlil</h5>
-              <Dropdown label="Tahlil Ekle" inline>
-                <Dropdown.Item onClick={() => onPressTest("Açlık Glukoz")}>
-                  Açlık Glukoz
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => onPressTest("TSH")}>
-                  TSH
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => onPressTest("[İlaç İsmi]")}>
-                  [Tahlil İsmi]
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => onPressTest("[İlaç İsmi]")}>
-                  [Tahlil İsmi]
-                </Dropdown.Item>
-              </Dropdown>
-            </div>
-            <div className="flex flex-col gap-3 rounded-b-md border-2 border-content2 bg-white p-3">
-              {test.map((p) => (
-                <div className="flex flex-row justify-between rounded-md p-2 hover:bg-content2">
-                  <p className="font-semibold">{p}</p>
-                  <FaRegTrashAlt
-                    onClick={() => onPressDeleteTest(p)}
-                    className="my-auto text-red-600 hover:cursor-pointer hover:opacity-85"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        <div id="second-row" className="flex flex-row">
-          <div id="first-col-of-2ndrow-notlar" className="basis-1/2 p-1">
-            <div className="rounded-md bg-content2">
-              <h5 className="p-3 text-lg font-medium">Notlar</h5>
-              <Textarea className="p-2" placeholder="...Notlar" rows={3} />
-            </div>
+          <div>
+            <AddTest appointmentId={Number(aid)} />
           </div>
-          <div id="second-col-of-2ndrow-" className="basis-1/2 p-1">
-            <div className="rounded-md bg-content2">
-              <h5 className="p-3 text-lg font-medium">
-                Randevunun Önceki Güncellemeleri
-              </h5>
-              <div className="flex flex-col gap-3 border-2 border-content2 bg-white p-3">
-                <p className="rounded-md p-1 hover:cursor-pointer hover:bg-content2">
-                  03.09.2024 14:36:45
-                </p>
-                <p className="rounded-md p-1 hover:cursor-pointer hover:bg-content2">
-                  03.09.2024 13:51:31
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div id="third-row" className="flex flex-row">
-          <div id="first-col-of-2ndrow-notlar" className="basis-1/2 p-1">
-            <div className="rounded-md bg-content2">
-              <h5 className="p-3 text-lg font-medium">
-                Tahlil Sonuçları
-              </h5>
-              <div className="flex flex-col gap-3 border-2 border-content2 bg-white p-3">
-                <p className="rounded-md p-1 hover:bg-content2">
-                  AÇLIK GLİKOZ - 150 <span className="font-bold">[Y]</span>
-                </p>
-                <p className="rounded-md p-1 hover:bg-content2">
-                  KAN BASINCI (DİASTOLİK) - 150 mm/Hg <span className="font-bold">[Y]</span>
-                </p>
-                <p className="rounded-md p-1 hover:bg-content2">
-                  KAN BASINCI (SİSTOLİK) - 110 mm/Hg <span className="font-bold">[Y]</span>
-                </p>
-              </div>
-            </div>
+          <div className="">
+            <AddNote
+              appointmentId={Number(aid)}
+              existingNotes={appointment?.notes}
+            />
           </div>
-        </div>
 
-        <div className="flex flex-row gap-6">
-          <Button className="primary">Güncelle</Button>
-          <Button className="bg-red-400">Randevuyu Tamamla</Button>
+          <div className="">
+            {aid && <Tests appointmentId={Number(aid)} />}
+          </div>
+
+          <div>
+            {aid && <CompleteAppointment appointmentId={Number(aid)} />}
+          </div>
         </div>
       </div>
-    </div>
     </Suspense>
   );
 }

@@ -7,7 +7,7 @@ export function mapResultFlagToSpan(code: number): React.JSX.Element {
     2: <span className="font-bold text-red-500">YÜKSEK</span>,
   };
   return (
-    flagMap[code] || <span className="font-bold text-black">BULUNAMADI</span>
+    flagMap[code] || <span className="font-bold text-black">SONUÇSUZ</span>
   );
 }
 

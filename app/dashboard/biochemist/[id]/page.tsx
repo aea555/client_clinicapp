@@ -1,5 +1,5 @@
+import { GetPendingAppointmentTests } from "apicalls/AppointmentTest/GetPendingAppointmentTests";
 import {
-  Button,
   Spinner,
   Table,
   TableBody,
@@ -10,8 +10,17 @@ import {
   TextInput,
 } from "flowbite-react";
 import React, { Suspense } from "react";
+import SendResults from "./SendResults";
 
-export default function BiochemistPage() {
+async function getRelatedData() {
+  const res = await GetPendingAppointmentTests();
+  if (res.success) return res.data;
+  return [];
+}
+
+export default async function BiochemistPage() {
+  const data = await getRelatedData();
+
   return (
     <Suspense
       fallback={
@@ -25,67 +34,37 @@ export default function BiochemistPage() {
         <div className="overflow-x-auto">
           <Table hoverable>
             <TableHead>
+              <TableHeadCell>OLUŞTURMA TARİHİ</TableHeadCell>
               <TableHeadCell>RANDEVU ID</TableHeadCell>
               <TableHeadCell>TEST ADI</TableHeadCell>
               <TableHeadCell>BİRİM</TableHeadCell>
-              <TableHeadCell>ALT ARALIK</TableHeadCell>
-              <TableHeadCell>ÜST ARALIK</TableHeadCell>
+              <TableHeadCell>KADIN ALT LİMİT</TableHeadCell>
+              <TableHeadCell>KADIN ÜST LİMİT</TableHeadCell>
+              <TableHeadCell>ERKEK ALT LİMİT</TableHeadCell>
+              <TableHeadCell>ERKEK ÜST LİMİT</TableHeadCell>
               <TableHeadCell>SONUÇ GİR</TableHeadCell>
-              <TableHeadCell></TableHeadCell>
             </TableHead>
             <TableBody className="divide-y">
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>AÇLIK GLUKOZU</TableCell>
-                <TableCell>mg/dL</TableCell>
-                <TableCell>70</TableCell>
-                <TableCell>100</TableCell>
-                <TableCell>
-                  <TextInput type="text" sizing="sm" />
-                </TableCell>
-                <TableCell>
-                  <Button>Gönder</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>HEMOGLOBİN</TableCell>
-                <TableCell>g/dL</TableCell>
-                <TableCell>13.2</TableCell>
-                <TableCell>16.6</TableCell>
-                <TableCell>
-                  <TextInput type="text" sizing="sm" />
-                </TableCell>
-                <TableCell>
-                  <Button>Gönder</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>HEMATOKRİT</TableCell>
-                <TableCell>%</TableCell>
-                <TableCell>35</TableCell>
-                <TableCell>50</TableCell>
-                <TableCell>
-                  <TextInput type="text" sizing="sm" />
-                </TableCell>
-                <TableCell>
-                  <Button>Gönder</Button>
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell>1</TableCell>
-                <TableCell>WBC</TableCell>
-                <TableCell>milyar/L</TableCell>
-                <TableCell>3.4</TableCell>
-                <TableCell>9.6</TableCell>
-                <TableCell>
-                  <TextInput type="text" sizing="sm" />
-                </TableCell>
-                <TableCell>
-                  <Button>Gönder</Button>
-                </TableCell>
-              </TableRow>
+              {data &&
+                data.map((v) => {
+                  return (
+                    <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                      <TableCell>
+                        {new Date(v.createdAt).toLocaleString()}
+                      </TableCell>
+                      <TableCell>{v.appointmentId}</TableCell>
+                      <TableCell>{v.test?.name}</TableCell>
+                      <TableCell>{v.test?.unitType}</TableCell>
+                      <TableCell>{v.test?.rangeStartFemale}</TableCell>
+                      <TableCell>{v.test?.rangeEndFemale}</TableCell>
+                      <TableCell>{v.test?.rangeStartMale}</TableCell>
+                      <TableCell>{v.test?.rangeEndMale}</TableCell>
+                      <TableCell>
+                        <SendResults appointmentTestId={v.id} rangeEnd={v.test?.rangeEndMale} rangeStart={v.test?.rangeStartMale}/>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </div>

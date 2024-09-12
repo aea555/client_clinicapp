@@ -5,13 +5,9 @@ import { cookies } from "next/headers";
 import { Account } from "types/Account.type";
 import { ServiceResult } from "types/ServiceResult";
 
-export async function UpdateAccount(
-  id: number,
-  email?: string | null,
-  passwordHash?: string | null,
-  gender?: number | null,
-  birthDate?: string | null,
-  role?: number | null,
+export async function ConfirmPassword(
+  accountId: number,
+  password: string
 ): Promise<ServiceResult<Account>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -31,28 +27,23 @@ export async function UpdateAccount(
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
 
-  const requestUrl = `${baseUrl}Account`;
+  const requestUrl = `${baseUrl}Account/ConfirmPassword`;
 
   const reqBody = JSON.stringify({
-    ...(id !== null && { id }),  
-    ...(email !== null && email !== '' && { email }),  
-    ...(passwordHash !== null && passwordHash !== '' && { passwordHash }),  
-    ...(gender !== null && { gender }),  
-    ...(birthDate !== null && birthDate !== '' && { birthDate }),  
-    ...(role !== null && { role }),  
+    accountId,
+    password
   });
 
   const response = await fetch(requestUrl, {
-    method: "PUT",
+    method: "POST",
     headers: reqHeaders,
-    body: reqBody
+    body: reqBody,
   });
-  
 
   if (!response.ok) {
     var ErrRes: ServiceResult<Account> = {
       success: false,
-      errorMessage: "Account Update Failed",
+      errorMessage: "Password confirmation Failed",
       message: "",
       statusCode: response.status,
       data: null,

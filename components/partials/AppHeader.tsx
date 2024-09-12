@@ -7,6 +7,7 @@ import {
 } from "flowbite-react";
 import Link from "next/link";
 import { BsHospital } from "react-icons/bs";
+import SignOutButton from "./SignOutButton";
 
 export default function AppHeader() {
   return (
@@ -21,7 +22,7 @@ export default function AppHeader() {
         </NavbarLink>
         <NavbarLink href={`/profile`}>Profil</NavbarLink>
         {/* <NavbarLink href="/preferences">Tercihler</NavbarLink> */}
-        <NavbarLink className="text-red-800" href="/logout">Çıkış Yap</NavbarLink>
+        <SignOutButton />
       </NavbarCollapse>
     </Navbar>
   );

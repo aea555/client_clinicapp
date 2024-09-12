@@ -1,32 +1,21 @@
+import { Spinner } from "flowbite-react";
+import { cookies } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export default function HomePage() {
+  const token = cookies().get("token");
+  if (!token) redirect("/auth/login");
+  else redirect("/dashboard");
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="auth/login"
-          >
-            <h3 className="text-2xl font-bold">Login Page</h3>
-            <div className="text-lg">
-              Just the basics - Everything you need to know to set up your
-              database and authentication.
-            </div>
-          </Link>
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="auth/register"
-          >
-            <h3 className="text-2xl font-bold">Signup Page</h3>
-            <div className="text-lg">
-              Learn more about Create T3 App, the libraries it uses, and how to
-              deploy it.
-            </div>
-          </Link>
+    <Suspense
+      fallback={
+        <div className="text-center">
+          <Spinner size="xl" aria-label="Loading" />
         </div>
-      </div>
-    </main>
+      }
+    ></Suspense>
   );
 }

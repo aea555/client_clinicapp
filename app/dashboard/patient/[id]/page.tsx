@@ -1,5 +1,6 @@
 import {
   List,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -13,7 +14,7 @@ import { PiSpeedometerFill } from "react-icons/pi";
 import { FaFilePrescription, FaClinicMedical, FaClock } from "react-icons/fa";
 import { TbVaccine } from "react-icons/tb";
 import { HiBeaker } from "react-icons/hi";
-import React from "react";
+import React, { Suspense } from "react";
 import BasicChart from "components/charts/BasicChart";
 import { GetAppointmentsOfAccount } from "apicalls/Account/GetAppointmentsOfAccount";
 import { mapAppointmentStatusToSpan } from "utils/mapAppointmentStatus";
@@ -42,7 +43,7 @@ function mostRecentOne(
               ? current
               : latest;
           })
-        : null; 
+        : null;
     return mostRecentObject;
   }
 
@@ -58,161 +59,172 @@ export default async function PatientPage() {
   const userId = decoded.nameid;
 
   return (
-    <div className="flex min-h-screen flex-col justify-between gap-5 p-6">
-      <div id="topsection" className="flex flex-row flex-wrap gap-5">
-        <div
-          id="userstats"
-          className="flex flex-col gap-1 rounded-md bg-white p-4"
-        >
-          <h5 className="font-semibold">İstatistikler</h5>
-          <List>
-            <List.Item icon={FaRuler}>175 cm</List.Item>
-            <List.Item icon={FaWeight}>70 kg</List.Item>
-            <List.Item icon={FaPerson}>22 yaş</List.Item>
-            <List.Item className="text-red-500" icon={PiSpeedometerFill}>
-              BMI: 40 (OBEZ)
-            </List.Item>
-          </List>
+    <Suspense
+      fallback={
+        <div className="text-center">
+          <Spinner size="xl" aria-label="Loading" />
+        </div>
+      }
+    >
+      <div className="flex min-h-screen flex-col justify-between gap-5 p-6">
+        <div id="topsection" className="flex flex-row flex-wrap gap-5">
+          {/* <div
+            id="userstats"
+            className="flex flex-col gap-1 rounded-md bg-white p-4"
+          >
+            <h5 className="font-semibold">İstatistikler</h5>
+            <List>
+              <List.Item icon={FaRuler}>175 cm</List.Item>
+              <List.Item icon={FaWeight}>70 kg</List.Item>
+              <List.Item icon={FaPerson}>22 yaş</List.Item>
+              <List.Item className="text-red-500" icon={PiSpeedometerFill}>
+                BMI: 40 (OBEZ)
+              </List.Item>
+            </List>
+          </div> */}
+
+          <div
+            id="userstats"
+            className="flex flex-col gap-1 rounded-md bg-white p-4"
+          >
+            <h5 className="font-semibold">Yaklaşan Randevu</h5>
+            <List>
+              {mostRecent && (
+                <>
+                  <List.Item icon={FaUserDoctor}>
+                    Dr. {mostRecent.firstName} {mostRecent.lastName}
+                  </List.Item>
+                  <List.Item icon={FaClinicMedical}>
+                    {mostRecent.name}
+                  </List.Item>
+                  <List.Item icon={FaClock}>
+                    {new Date(mostRecent.startTime).toLocaleString()}
+                  </List.Item>
+                  <CancelAppointmentButton appointmentId={mostRecent.id} />
+                </>
+              )}
+            </List>
+          </div>
+
+          {/* <div
+            id="somecharts"
+            className="flex flex-col gap-1 overflow-x-auto rounded-md bg-white p-4"
+          >
+            <h5>Kilo Tablosu</h5>
+            <BasicChart />
+          </div> */}
+
+          <div id="gridmenu" className="grid grid-cols-2 gap-3">
+            <Link
+              href={`/dashboard/patient/${userId}/prescriptions`}
+              className="flex flex-col rounded-2xl border-5 border-green-600 bg-green-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
+            >
+              <div className="basis-1/3">
+                <h5 className="text-center font-semibold">Reçetelerim</h5>
+              </div>
+              <div className="basis-2/3 rounded-2xl shadow-2xl">
+                <FaFilePrescription
+                  className="w-full align-middle text-green-800 opacity-85"
+                  size={90}
+                />
+              </div>
+            </Link>
+            <Link
+              href={`/dashboard/patient/${userId}/injections`}
+              className="flex flex-col rounded-2xl border-5 border-blue-600 bg-blue-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
+            >
+              <div className="basis-1/3">
+                <h5 className="text-center font-semibold">Enjeksiyonlarım</h5>
+              </div>
+              <div className="basis-2/3 rounded-2xl shadow-2xl">
+                <TbVaccine
+                  className="w-full align-middle text-blue-800 opacity-85"
+                  size={90}
+                />
+              </div>
+            </Link>
+            <Link
+              href={`/dashboard/patient/${userId}/testresults`}
+              className="flex flex-col rounded-2xl border-5 border-red-600 bg-red-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
+            >
+              <div className="basis-1/3">
+                <h5 className="text-center font-semibold">Tahlil Sonuçlarım</h5>
+              </div>
+              <div className="basis-2/3 rounded-2xl shadow-2xl">
+                <HiBeaker
+                  className="w-full align-middle text-red-800 opacity-85"
+                  size={90}
+                />
+              </div>
+            </Link>
+            <Link
+              href={`/dashboard/patient/${userId}/get-an-appointment`}
+              className="flex flex-col rounded-2xl border-5 border-yellow-600 bg-yellow-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
+            >
+              <div className="basis-1/3">
+                <h5 className="text-center font-semibold">Randevu Al</h5>
+              </div>
+              <div className="basis-2/3 rounded-2xl shadow-2xl">
+                <FaUserDoctor
+                  className="w-full align-middle text-yellow-800 opacity-85"
+                  size={90}
+                />
+              </div>
+            </Link>
+          </div>
         </div>
 
         <div
-          id="userstats"
-          className="flex flex-col gap-1 rounded-md bg-white p-4"
+          id="appointments"
+          className="flex flex-1 flex-col gap-3 overflow-x-auto"
         >
-          <h5 className="font-semibold">Yaklaşan Randevu</h5>
-          <List>
-            {mostRecent && (
-              <>
-                <List.Item icon={FaUserDoctor}>
-                  Dr. {mostRecent.firstName} {mostRecent.lastName}
-                </List.Item>
-                <List.Item icon={FaClinicMedical}>{mostRecent.name}</List.Item>
-                <List.Item icon={FaClock}>
-                  {new Date(mostRecent.startTime).toLocaleString()}
-                </List.Item>
-                <CancelAppointmentButton appointmentId={mostRecent.id} />
-              </>
-            )}
-          </List>
-        </div>
-
-        <div
-          id="somecharts"
-          className="flex flex-col gap-1 overflow-x-auto rounded-md bg-white p-4"
-        >
-          <h5>Kilo Tablosu</h5>
-          <BasicChart />
-        </div>
-
-        <div id="gridmenu" className="grid grid-cols-2 gap-3">
-          <Link
-            href={`/dashboard/patient/${userId}/prescriptions`}
-            className="flex flex-col rounded-2xl border-5 border-green-600 bg-green-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
-          >
-            <div className="basis-1/3">
-              <h5 className="text-center font-semibold">Reçetelerim</h5>
-            </div>
-            <div className="basis-2/3 rounded-2xl shadow-2xl">
-              <FaFilePrescription
-                className="w-full align-middle text-green-800 opacity-85"
-                size={90}
-              />
-            </div>
-          </Link>
-          <Link
-            href={`/dashboard/patient/${userId}/injections`}
-            className="flex flex-col rounded-2xl border-5 border-blue-600 bg-blue-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
-          >
-            <div className="basis-1/3">
-              <h5 className="text-center font-semibold">Enjeksiyonlarım</h5>
-            </div>
-            <div className="basis-2/3 rounded-2xl shadow-2xl">
-              <TbVaccine
-                className="w-full align-middle text-blue-800 opacity-85"
-                size={90}
-              />
-            </div>
-          </Link>
-          <Link
-            href={`/dashboard/patient/${userId}/testresults`}
-            className="flex flex-col rounded-2xl border-5 border-red-600 bg-red-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
-          >
-            <div className="basis-1/3">
-              <h5 className="text-center font-semibold">Tahlil Sonuçlarım</h5>
-            </div>
-            <div className="basis-2/3 rounded-2xl shadow-2xl">
-              <HiBeaker
-                className="w-full align-middle text-red-800 opacity-85"
-                size={90}
-              />
-            </div>
-          </Link>
-          <Link
-            href={`/dashboard/patient/${userId}/get-an-appointment`}
-            className="flex flex-col rounded-2xl border-5 border-yellow-600 bg-yellow-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
-          >
-            <div className="basis-1/3">
-              <h5 className="text-center font-semibold">Randevu Al</h5>
-            </div>
-            <div className="basis-2/3 rounded-2xl shadow-2xl">
-              <FaUserDoctor
-                className="w-full align-middle text-yellow-800 opacity-85"
-                size={90}
-              />
-            </div>
-          </Link>
+          <h5 className="text-lg font-semibold">Randevularım</h5>
+          <Table hoverable>
+            <TableHead>
+              <TableHeadCell>KLİNİK ADI</TableHeadCell>
+              <TableHeadCell>DOKTOR ADI</TableHeadCell>
+              <TableHeadCell>OLUŞTURMA TARİHİ</TableHeadCell>
+              <TableHeadCell>DURUM</TableHeadCell>
+              <TableHeadCell>RANDEVU TARİHİ</TableHeadCell>
+              <TableHeadCell>RANDEVU BİTİŞ TARİHİ</TableHeadCell>
+              <TableHeadCell></TableHeadCell>
+            </TableHead>
+            <TableBody className="divide-y">
+              {data &&
+                data.map((v) => {
+                  return (
+                    <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                        {v.name}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                        {v.firstName} {v.lastName}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                        {new Date(v.createdAt).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                        {mapAppointmentStatusToSpan(v.appointmentStatus)}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                        {new Date(v.startTime).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                        {v.finishTime &&
+                          new Date(v?.finishTime).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                        {v.appointmentStatus === 0 && (
+                          <CancelAppointmentButton appointmentId={v.id} />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
         </div>
       </div>
-
-      <div
-        id="appointments"
-        className="flex flex-1 flex-col gap-3 overflow-x-auto"
-      >
-        <h5 className="text-lg font-semibold">Randevularım</h5>
-        <Table hoverable>
-          <TableHead>
-            <TableHeadCell>KLİNİK ADI</TableHeadCell>
-            <TableHeadCell>DOKTOR ADI</TableHeadCell>
-            <TableHeadCell>OLUŞTURMA TARİHİ</TableHeadCell>
-            <TableHeadCell>DURUM</TableHeadCell>
-            <TableHeadCell>RANDEVU TARİHİ</TableHeadCell>
-            <TableHeadCell>RANDEVU BİTİŞ TARİHİ</TableHeadCell>
-            <TableHeadCell></TableHeadCell>
-          </TableHead>
-          <TableBody className="divide-y">
-            {data &&
-              data.map((v) => {
-                return (
-                  <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                      {v.name}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                      {v.firstName} {v.lastName}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                      {new Date(v.createdAt).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                      {mapAppointmentStatusToSpan(v.appointmentStatus)}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                      {new Date(v.startTime).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                      {v.finishTime && new Date(v?.finishTime).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                      {v.appointmentStatus === 0 && (
-                        <CancelAppointmentButton appointmentId={v.id} />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+    </Suspense>
   );
 }

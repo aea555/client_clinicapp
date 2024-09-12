@@ -4,8 +4,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button, Input, Select, SelectItem } from "@nextui-org/react";
-import { Register } from "apicalls/Auth/register";
+import { Input, Select, SelectItem } from "@nextui-org/react";
+import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
 import DatePickerComponent from "components/ui/DatePickerComponent";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import { Alert } from "flowbite-react";
 export default function RegisterForm() {
   const [submitFail, setSubmitFail] = React.useState<boolean>(false);
   const [submitOkay, setSubmitOkay] = React.useState<boolean>(false);
+  const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
 
   const regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{6,20}$";
   const registerSchema = z.object({
@@ -36,25 +37,40 @@ export default function RegisterForm() {
     formState: { errors },
   } = useForm<Schema>({ resolver: zodResolver(registerSchema) });
 
-  async function onSubmit(data: Schema) {
+  async function onSubmit(schemaData: Schema) {
+    setIsProcessing(true);
     try {
-      const res = await Register(
-        data.email,
-        data.password,
-        Number(data.gender),
-        data.birthDate,
-      );
-      if (res.success) {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: schemaData.email,
+          passwordHash: schemaData.password,
+          gender: Number(schemaData.gender),
+          birthDate: schemaData.birthDate
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
         setSubmitOkay(true);
-        router.replace("/auth/login");
+        console.log("Signup successful");
+        router.replace("/auth/login")
       } else {
-        setSubmitFail(true);
+        console.log(
+          "Signup failed",
+          data.error || "Unknown error",
+        );
+        setSubmitFail(true)
       }
     } catch (error) {
-      setSubmitFail(true);
+      console.error("An error occurred:", error);
+    } finally {
+      setIsProcessing(false);
     }
   }
-
   return (
     <div>
       <form
@@ -99,8 +115,8 @@ export default function RegisterForm() {
             <SelectItem key={1}>Kadın</SelectItem>
           </Select>
         </div>
-        <Button type="submit" color="primary" radius="md">
-          <input type="submit" />
+        <Button type="submit" isProcessing={isProcessing} disabled={isProcessing}>
+          Gönder
         </Button>
         <div>
           <Link href="/auth/login">Giriş yapmak için tıklayın.</Link>

@@ -7,6 +7,7 @@ import AddTest from "./AddTest";
 import CompleteAppointment from "./CompleteAppointment";
 import { GetAppointment } from "apicalls/Appointment/GetAppointment";
 import { redirect } from "next/navigation";
+import PatientAbsent from "./PatientAbsent";
 
 async function fetchAppointment(aid: string) {
   const appointment = await GetAppointment({ appointmentId: Number(aid) });
@@ -57,8 +58,9 @@ export default async function AppointmentPageDoctor({
             {aid && <Tests appointmentId={Number(aid)} />}
           </div>
 
-          <div>
+          <div className="flex flex-row flex-wrap gap-3">
             {aid && <CompleteAppointment appointmentId={Number(aid)} />}
+            {aid && <PatientAbsent appointmentId={Number(aid)} />}
           </div>
         </div>
       </div>

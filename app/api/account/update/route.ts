@@ -10,6 +10,6 @@ export async function PUT(request: Request) {
   if (result.success) {
     return NextResponse.json({ success: true });
   } else {
-    return NextResponse.json({ success: false });
+    return NextResponse.json({ success: false, error: result.errorMessage });
   }
 }

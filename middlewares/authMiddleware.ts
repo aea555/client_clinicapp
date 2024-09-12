@@ -1,4 +1,3 @@
-import { LogOut } from "apicalls/Auth/logout";
 import { jwtDecode } from "jwt-decode";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";

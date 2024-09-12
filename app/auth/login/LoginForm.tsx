@@ -5,10 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
-  Button,
   Input,
 } from "@nextui-org/react";
-import { Login } from "apicalls/Auth/login";
+import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Alert } from "flowbite-react";
@@ -17,6 +16,7 @@ import { HiInformationCircle } from "react-icons/hi";
 export default function LoginForm() {
   const [submitFail, setSubmitFail] = React.useState<boolean>(false);
   const [submitOkay, setSubmitOkay] = React.useState<boolean>(false);
+  const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
 
   const authSchema = z.object({
     email: z.string().email({ message: "Geçerli bir email giriniz." }),
@@ -34,19 +34,38 @@ export default function LoginForm() {
     formState: { errors },
   } = useForm<Schema>({ resolver: zodResolver(authSchema) });
 
-  async function onSubmit(data: Schema) {
+  async function onSubmit(schemaData: Schema) {
+    setIsProcessing(true);
     try {
-      const res = await Login(data.email, data.password);
-        if (res.success) {
-          setSubmitOkay(true);
-          router.replace("/dashboard");
-        } else {
-          setSubmitFail(true);
-        }
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: schemaData.email,
+          password: schemaData.password
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setSubmitOkay(true);
+        console.log("Login successful");
+        router.replace("/dashboard")
+      } else {
+        console.log(
+          "Email confirm failed",
+          data.error || "Unknown error",
+        );
+        setSubmitFail(true)
+      }
     } catch (error) {
-      setSubmitFail(true);
+      console.error("An error occurred:", error);
+    } finally {
+      setIsProcessing(false);
     }
-  };
+  }
 
   return (
     <div>
@@ -75,8 +94,8 @@ export default function LoginForm() {
           />
           {errors.password?.message && <p>{String(errors.password.message)}</p>}
         </div>
-        <Button type="submit" color="primary" radius="md">
-          <input type="submit" />
+        <Button type="submit" isProcessing={isProcessing} disabled={isProcessing}>
+          Gönder
         </Button>
         <div>
           <Link href="/auth/register">Kayıt olmak için tıklayın.</Link>

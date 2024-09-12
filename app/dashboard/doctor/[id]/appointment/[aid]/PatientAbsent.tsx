@@ -9,7 +9,7 @@ interface Props {
   appointmentId: number;
 }
 
-export default function CompleteAppointment({ appointmentId }: Props) {
+export default function PatientAbsent({ appointmentId }: Props) {
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
   const [openModal, setOpenModal] = React.useState<boolean>(false);
   const [failMsg, setFailMsg] = React.useState<string>("");
@@ -25,7 +25,7 @@ export default function CompleteAppointment({ appointmentId }: Props) {
         },
         body: JSON.stringify({
           appointmentId,
-          status: 1,
+          status: 3,
         }),
       });
 
@@ -56,9 +56,9 @@ export default function CompleteAppointment({ appointmentId }: Props) {
         isProcessing={isProcessing}
         disabled={isProcessing}
         onClick={() => setOpenModal(true)}
-        className="bg-red-400"
+        className="bg-yellow-400"
       >
-        Randevuyu Tamamla
+        Hasta Gelmedi
       </Button>
       {failMsg && (
         <Toast>

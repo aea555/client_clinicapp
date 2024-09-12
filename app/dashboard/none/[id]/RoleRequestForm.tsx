@@ -2,12 +2,16 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input, Select, SelectItem } from "@nextui-org/react";
-import { Alert, Button, Spinner } from "flowbite-react";
+import { Alert, Button, Modal, Spinner, Toast } from "flowbite-react";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { KeyValuePair } from "types/RoleKeyValuePairs.type";
 import { z } from "zod";
-import { HiInformationCircle } from "react-icons/hi";
+import {
+  HiExclamation,
+  HiInformationCircle,
+  HiOutlineExclamationCircle,
+} from "react-icons/hi";
 import { useRouter } from "next/navigation";
 
 export default function RoleRequestForm() {
@@ -15,6 +19,9 @@ export default function RoleRequestForm() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [statuscode, setStatuscode] = useState("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [failMsg, setFailMsg] = useState<string>("");
+
   const router = useRouter();
 
   const roles: KeyValuePair[] = [
@@ -24,9 +31,29 @@ export default function RoleRequestForm() {
   ];
 
   const requestSchema = z.object({
-    Role: z.string(),
-    FirstName: z.string().min(1).max(75),
-    LastName: z.string().min(1).max(75),
+    Role: z.string({
+      message: "Rol boş bırakılamaz!",
+    }),
+    FirstName: z
+      .string({
+        message: "Ad boş bırakılamaz!",
+      })
+      .min(1, {
+        message: "Ad boş bırakılamaz!",
+      })
+      .max(75, {
+        message: "Maksimum uzunluk 75 karakterdir!",
+      }),
+    LastName: z
+      .string({
+        message: "Soyad boş bırakılamaz!",
+      })
+      .min(1, {
+        message: "Soyad boş bırakılamaz!",
+      })
+      .max(75, {
+        message: "Maksimum uzunluk 75 karakterdir!",
+      }),
   });
 
   type Schema = z.infer<typeof requestSchema>;
@@ -67,8 +94,7 @@ export default function RoleRequestForm() {
           setAlertOpen(true);
           setStatuscode(data?.statusCode.toString());
         }
-      }
-      else {
+      } else {
         router.replace("/logout");
       }
     } catch (error) {
@@ -119,13 +145,52 @@ export default function RoleRequestForm() {
             {...register("LastName")}
           />
         </div>
-        <Button
-          isProcessing={isProcessing}
-          disabled={isProcessing}
-          type="submit"
-        >
-          Gönder
-        </Button>
+        <Button onClick={() => setOpenModal(true)}>Gönder</Button>
+        {errors.FirstName?.message && (
+          <Toast>
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+              <HiExclamation className="h-5 w-5" />
+            </div>
+            <div className="ml-3 text-sm font-normal">
+              {errors.FirstName?.message}
+            </div>
+            <Toast.Toggle />
+          </Toast>
+        )}
+
+        {errors.LastName?.message && (
+          <Toast>
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+              <HiExclamation className="h-5 w-5" />
+            </div>
+            <div className="ml-3 text-sm font-normal">
+              {errors.LastName?.message}
+            </div>
+            <Toast.Toggle />
+          </Toast>
+        )}
+
+        {errors.Role?.message && (
+          <Toast>
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+              <HiExclamation className="h-5 w-5" />
+            </div>
+            <div className="ml-3 text-sm font-normal">
+              {errors.Role?.message}
+            </div>
+            <Toast.Toggle />
+          </Toast>
+        )}
+
+        {failMsg && (
+          <Toast>
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+              <HiExclamation className="h-5 w-5" />
+            </div>
+            <div className="ml-3 text-sm font-normal">{failMsg}</div>
+            <Toast.Toggle />
+          </Toast>
+        )}
         {alertOpen ? (
           <div>
             <Alert
@@ -148,6 +213,41 @@ export default function RoleRequestForm() {
             Lütfen sayfanız yüklenirken bekleyin...
           </Alert>
         ) : null}
+        <Modal
+          show={openModal}
+          size="md"
+          onClose={() => setOpenModal(false)}
+          popup
+        >
+          <Modal.Header />
+          <Modal.Body>
+            <div className="text-center">
+              <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+              <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                Devam etmek istediğinize emin misiniz?
+              </h3>
+              <div className="flex justify-center gap-4">
+                <Button
+                  onClick={() => {
+                    handleSubmit(onSubmitPost)();
+                    setOpenModal(false);
+                  }}
+                  isProcessing={isProcessing}
+                  disabled={isProcessing}
+                >
+                  {"Evet"}
+                </Button>
+                <Button
+                  disabled={isProcessing}
+                  color="gray"
+                  onClick={() => setOpenModal(false)}
+                >
+                  Hayır, iptal et.
+                </Button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
       </form>
     </Suspense>
   );

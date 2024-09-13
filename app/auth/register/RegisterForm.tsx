@@ -17,12 +17,8 @@ export default function RegisterForm() {
   const [submitOkay, setSubmitOkay] = React.useState<boolean>(false);
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
 
-  const regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{6,20}$";
   const registerSchema = z.object({
     email: z.string().email({ message: "Geçerli bir email giriniz." }),
-    password: z.string().regex(RegExp(regex), {
-      message: "Şifre gereksinimlerini karşılamıyor.",
-    }),
     gender: z.string().min(1),
     birthDate: z.string().min(1),
   });
@@ -39,38 +35,31 @@ export default function RegisterForm() {
 
   async function onSubmit(schemaData: Schema) {
     setIsProcessing(true);
-    try {
-      const res = await fetch("/api/auth/signup", {
+    try {  
+      const res = await fetch("/api/auth/sendemail", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: schemaData.email,
-          passwordHash: schemaData.password,
-          gender: Number(schemaData.gender),
-          birthDate: schemaData.birthDate
+          email: schemaData.email
         }),
       });
 
       const data = await res.json();
       if (data.success) {
-        setSubmitOkay(true);
-        console.log("Signup successful");
-        router.replace("/auth/login")
+        router.push(`/auth/confirm?email=${schemaData.email}&gender=${schemaData.gender}&birthDate=${schemaData.birthDate}`);
       } else {
-        console.log(
-          "Signup failed",
-          data.error || "Unknown error",
-        );
-        setSubmitFail(true)
+        setSubmitFail(true);
       }
     } catch (error) {
       console.error("An error occurred:", error);
+      setSubmitFail(true);
     } finally {
       setIsProcessing(false);
     }
   }
+
   return (
     <div>
       <form
@@ -95,16 +84,6 @@ export default function RegisterForm() {
             placeholder="ahmet@clinic.com"
             {...register("email")}
           />
-          {errors.email?.message && <p>{String(errors.email.message)}</p>}
-        </div>
-        <div>
-          <Input
-            id="password"
-            type="password"
-            label="Password"
-            {...register("password")}
-          />
-          {errors.password?.message && <p>{String(errors.password.message)}</p>}
         </div>
         <div>
           <DatePickerComponent {...register("birthDate")} />

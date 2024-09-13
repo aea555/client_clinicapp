@@ -19,7 +19,7 @@ export default function authMiddleware(req: NextRequest) {
 
   if (
     !token &&
-    !["/auth/login", "/auth/register"].includes(req.nextUrl.pathname)
+    !["/auth/login", "/auth/register", "/auth/confirm"].includes(req.nextUrl.pathname)
   ) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }

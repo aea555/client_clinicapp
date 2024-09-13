@@ -10,6 +10,7 @@ export async function POST(request: Request) {
     rangeEndFemale,
     desc,
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await CreateTest(
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
     rangeStartFemale,
     rangeEndFemale,
     desc,
+    clientIp
   );
 
   if (result.success) {

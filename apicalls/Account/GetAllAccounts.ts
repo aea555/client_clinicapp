@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { Account } from "types/Account.type";
 import { ServiceResult } from "types/ServiceResult";
 
-export async function GetAllAccounts() : Promise<ServiceResult<Account[]>> {
+export async function GetAllAccounts(clientIp?: string | null) : Promise<ServiceResult<Account[]>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
 
@@ -23,7 +23,9 @@ export async function GetAllAccounts() : Promise<ServiceResult<Account[]>> {
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}Account`
   
   const response = await fetch(requestUrl, {

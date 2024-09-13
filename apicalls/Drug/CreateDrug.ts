@@ -7,6 +7,7 @@ import { ServiceResult } from "types/ServiceResult";
 
 export async function CreateDrug(
   name: string,
+  clientIp?: string | null,
 ): Promise<ServiceResult<Drug>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -25,7 +26,9 @@ export async function CreateDrug(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}Drug`;
 
   const reqBody = JSON.stringify({

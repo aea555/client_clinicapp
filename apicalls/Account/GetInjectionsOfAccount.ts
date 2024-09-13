@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "types/Jwt.type";
 import { InjectionsOfAccount } from "types/InjectionsOfAccount.type";
 
-export async function GetInjectionsOfAccount() : Promise<ServiceResult<InjectionsOfAccount[], InjectionsOfAccount[]>> {
+export async function GetInjectionsOfAccount(clientIp?: string | null,) : Promise<ServiceResult<InjectionsOfAccount[], InjectionsOfAccount[]>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
 
@@ -26,7 +26,9 @@ export async function GetInjectionsOfAccount() : Promise<ServiceResult<Injection
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}GetInjectionsOfAccount/${accountId}`;
   
   const response = await fetch(requestUrl, {

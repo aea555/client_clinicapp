@@ -8,6 +8,7 @@ import { ServiceResult } from "types/ServiceResult";
 export async function CreateAppointmentTest(
   appointmentId: number,
   testId: number,
+  clientIp?: string | null,
 ): Promise<ServiceResult<AppointmentTest>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -26,6 +27,9 @@ export async function CreateAppointmentTest(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
 
   const requestUrl = `${baseUrl}AppointmentTest`;
 

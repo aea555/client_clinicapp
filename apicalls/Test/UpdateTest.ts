@@ -14,6 +14,7 @@ export async function UpdateTest(
   rangeStartFemale: number | null,
   rangeEndFemale: number | null,
   desc: string | null,
+  clientIp?: string | null,
 ): Promise<ServiceResult<Test>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -32,7 +33,9 @@ export async function UpdateTest(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}Test`;
 
   const reqBody = JSON.stringify({

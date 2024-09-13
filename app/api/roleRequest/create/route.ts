@@ -4,10 +4,11 @@ export async function POST(request: Request) {
   const {
     role, firstName, lastName
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await CreateRoleRequest(
-    role, firstName, lastName
+    role, firstName, lastName, clientIp
   );
 
   if (result.success) {

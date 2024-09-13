@@ -9,6 +9,7 @@ export async function POST(request: Request) {
     breakStartTime,
     breakEndTime,
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await CreateClinic(
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
     closeTime,
     breakStartTime,
     breakEndTime,
+    clientIp
   );
 
   if (result.success) {

@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "types/Jwt.type";
 import { PrescriptionsOfAccount } from "types/PrescriptionsOfAccount.type";
 
-export async function GetPrescriptionsOfAccount() : Promise<ServiceResult<PrescriptionsOfAccount[], PrescriptionsOfAccount[]>> {
+export async function GetPrescriptionsOfAccount(clientIp?: string | null,) : Promise<ServiceResult<PrescriptionsOfAccount[], PrescriptionsOfAccount[]>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
 
@@ -26,7 +26,9 @@ export async function GetPrescriptionsOfAccount() : Promise<ServiceResult<Prescr
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}GetPrescriptionsOfAccount/${accountId}`;
   
   const response = await fetch(requestUrl, {

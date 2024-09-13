@@ -6,10 +6,13 @@ export async function POST(request: Request) {
     email
   } = await request.json();
 
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
+
   let result;
   result = await ConfirmEmail(
     accountId,
-    email
+    email,
+    clientIp
   );
 
   if (result.success) {

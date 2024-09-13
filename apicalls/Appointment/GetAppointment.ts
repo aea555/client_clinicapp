@@ -6,10 +6,11 @@ import { Appointment } from "types/Appointment.type";
 import { ServiceResult } from "types/ServiceResult";
 
 interface Props {
-  appointmentId: number
+  appointmentId: number,
+  clientIp?: string | null,
 }
 
-export async function GetAppointment({appointmentId} : Props) : Promise<ServiceResult<Appointment>> {
+export async function GetAppointment({appointmentId, clientIp} : Props) : Promise<ServiceResult<Appointment>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
 
@@ -27,7 +28,9 @@ export async function GetAppointment({appointmentId} : Props) : Promise<ServiceR
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}Appointment/${appointmentId}`
   
   const response = await fetch(requestUrl, {

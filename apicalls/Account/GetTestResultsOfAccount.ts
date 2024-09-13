@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "types/Jwt.type";
 import { TestResultsOfAccount } from "types/TestResultsOfAccount.type";
 
-export async function GetTestResultsOfAccount() : Promise<ServiceResult<TestResultsOfAccount[], TestResultsOfAccount[]>> {
+export async function GetTestResultsOfAccount(clientIp?: string | null,) : Promise<ServiceResult<TestResultsOfAccount[], TestResultsOfAccount[]>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
 
@@ -26,7 +26,9 @@ export async function GetTestResultsOfAccount() : Promise<ServiceResult<TestResu
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}GetTestResultsOfAccount/${accountId}`;
   
   const response = await fetch(requestUrl, {

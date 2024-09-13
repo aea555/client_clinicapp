@@ -7,13 +7,16 @@ export async function POST(request: Request) {
     patientId,
     startTime
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
+
 
   let result;
   result = await CreateAppointment(
     clinicId,
     doctorId,
     patientId,
-    startTime
+    startTime,
+    clientIp
   );
 
   if (result.success) {

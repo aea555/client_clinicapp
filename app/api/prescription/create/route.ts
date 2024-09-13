@@ -4,10 +4,11 @@ export async function POST(request: Request) {
   const {
     doctorId, patientId, appointmentId, durationDays, notes
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await CreatePrescription(
-    doctorId, patientId, appointmentId, durationDays, notes
+    doctorId, patientId, appointmentId, durationDays, notes, clientIp
   );
 
   if (result.success) {

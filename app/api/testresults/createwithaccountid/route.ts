@@ -8,12 +8,15 @@ export async function POST(request: Request) {
     resultFlag
   } = await request.json();
 
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
+
   let result;
   result = await CreateAppointmentTestResultWithAccountId(
     appointmentTestId,
     value,
     accountId,
-    resultFlag
+    resultFlag,
+    clientIp
   );
 
   if (result.success) {

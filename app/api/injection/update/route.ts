@@ -2,10 +2,11 @@ import { UpdateInjection } from "apicalls/Injection/UpdateInjection";
 import { NextResponse } from "next/server";
 export async function PUT(request: Request) {
   const { id, patientId, doctorId, drugId } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await UpdateInjection(
-    id, patientId, doctorId, drugId 
+    id, patientId, doctorId, drugId, clientIp
   );
 
   if (result.success) {

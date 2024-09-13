@@ -12,7 +12,8 @@ export async function UpdateFeedback(
   appointmentId?: number | null,
   rating?: number | null,
   comment?: string | null,
-  isDeleted?: boolean | null
+  isDeleted?: boolean | null,
+  clientIp?: string | null,
 ): Promise<ServiceResult<Feedback>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -31,7 +32,9 @@ export async function UpdateFeedback(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}Feedback`;
 
   const reqBody = JSON.stringify({

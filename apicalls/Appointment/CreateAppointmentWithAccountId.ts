@@ -9,7 +9,8 @@ export async function CreateAppointmentWithAccountId(
   clinicId: number,
   doctorId: number,
   accountId: number,
-  startTime: string
+  startTime: string,
+  clientIp?: string | null,
 ): Promise<ServiceResult<Appointment>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -28,6 +29,9 @@ export async function CreateAppointmentWithAccountId(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
 
   const requestUrl = `${baseUrl}Appointment/CreateWithAccountId`;
 

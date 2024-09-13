@@ -8,6 +8,7 @@ export async function POST(request: Request) {
     rating,
     comment,
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await CreateFeedback(
@@ -16,6 +17,7 @@ export async function POST(request: Request) {
     appointmentId,
     rating,
     comment,
+    clientIp
   );
 
   if (result.success) {

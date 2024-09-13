@@ -5,11 +5,13 @@ export async function POST(request: Request) {
     accountId,
     password
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await ConfirmPassword(
     accountId,
-    password
+    password,
+    clientIp
   );
 
   if (result.success) {

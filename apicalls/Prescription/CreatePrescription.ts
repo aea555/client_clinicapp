@@ -6,7 +6,12 @@ import { ServiceResult } from "types/ServiceResult";
 import { Prescription } from "types/Prescription.type";
 
 export async function CreatePrescription(
-  doctorId: number, patientId: number, appointmentId: number, durationDays: number, notes?: string | null
+  doctorId: number,
+  patientId: number,
+  appointmentId: number,
+  durationDays: number,
+  notes?: string | null,
+  clientIp?: string | null,
 ): Promise<ServiceResult<Prescription>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -25,11 +30,17 @@ export async function CreatePrescription(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}Prescription`;
 
   const reqBody = JSON.stringify({
-    doctorId, patientId, appointmentId, durationDays, notes
+    doctorId,
+    patientId,
+    appointmentId,
+    durationDays,
+    notes,
   });
 
   const response = await fetch(requestUrl, {

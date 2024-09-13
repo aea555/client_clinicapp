@@ -11,6 +11,7 @@ export async function PUT(request: Request) {
     rangeEndFemale,
     desc,
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await UpdateTest(
@@ -22,6 +23,7 @@ export async function PUT(request: Request) {
     rangeStartFemale,
     rangeEndFemale,
     desc,
+    clientIp
   );
 
   if (result.success) {

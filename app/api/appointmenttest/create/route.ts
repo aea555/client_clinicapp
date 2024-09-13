@@ -5,11 +5,13 @@ export async function POST(request: Request) {
     appointmentId,
     testId
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await CreateAppointmentTest(
     appointmentId,
-    testId
+    testId,
+    clientIp
   );
 
   if (result.success) {

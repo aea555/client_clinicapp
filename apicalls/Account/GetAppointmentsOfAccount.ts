@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "types/Jwt.type";
 import { AppointmentsOfAccount } from "types/AppointmentsOfAccount.type";
 
-export async function GetAppointmentsOfAccount() : Promise<ServiceResult<AppointmentsOfAccount[], AppointmentsOfAccount[]>> {
+export async function GetAppointmentsOfAccount(clientIp?: string | null) : Promise<ServiceResult<AppointmentsOfAccount[], AppointmentsOfAccount[]>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
 
@@ -26,7 +26,9 @@ export async function GetAppointmentsOfAccount() : Promise<ServiceResult<Appoint
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}GetAppointmentsOfAccount/${accountId}`;
   
   const response = await fetch(requestUrl, {

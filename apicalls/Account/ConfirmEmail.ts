@@ -7,7 +7,8 @@ import { ServiceResult } from "types/ServiceResult";
 
 export async function ConfirmEmail(
   accountId: number,
-  email: string
+  email: string,
+  clientIp?: string | null,
 ): Promise<ServiceResult<Account>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -26,12 +27,15 @@ export async function ConfirmEmail(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
 
   const requestUrl = `${baseUrl}Account/ConfirmEmail`;
 
   const reqBody = JSON.stringify({
     accountId,
-    email
+    email,
   });
 
   const response = await fetch(requestUrl, {

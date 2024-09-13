@@ -10,6 +10,7 @@ export async function PUT(request: Request) {
     comment,
     isDeleted,
   } = await request.json();
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("remote-addr");
 
   let result;
   result = await UpdateFeedback(
@@ -19,7 +20,8 @@ export async function PUT(request: Request) {
     appointmentId,
     rating,
     comment,
-    isDeleted
+    isDeleted,
+    clientIp
   );
 
   if (result.success) {

@@ -12,6 +12,7 @@ export async function CreateClinic(
   closeTime: string,
   breakStartTime: string,
   breakEndTime: string,
+  clientIp?: string | null,
 ): Promise<ServiceResult<Clinic>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -30,7 +31,9 @@ export async function CreateClinic(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}Clinic`;
 
   const reqBody = JSON.stringify({

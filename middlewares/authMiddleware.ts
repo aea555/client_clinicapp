@@ -5,6 +5,7 @@ import { CustomJwtPayload } from "types/Jwt.type";
 
 export default function authMiddleware(req: NextRequest) {
   const token = req.cookies.get("token");
+  const clientIp = req.headers.get("x-forwarded-for") || req.ip || req.headers.get("remote-addr");
 
   if (req.nextUrl.pathname.startsWith("/_next")) {
     return NextResponse.next();

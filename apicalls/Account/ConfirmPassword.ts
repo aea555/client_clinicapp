@@ -7,7 +7,8 @@ import { ServiceResult } from "types/ServiceResult";
 
 export async function ConfirmPassword(
   accountId: number,
-  password: string
+  password: string,
+  clientIp?: string | null,
 ): Promise<ServiceResult<Account>> {
   const baseUrl = env.API_CON;
   const token = cookies().get("token");
@@ -26,7 +27,9 @@ export async function ConfirmPassword(
   const reqHeaders = new Headers();
   reqHeaders.append("Content-Type", "application/json");
   reqHeaders.append("Authorization", `Bearer ${token?.value}`);
-
+  if (clientIp) {
+    reqHeaders.append("X-Forwarded-For", clientIp);
+  }
   const requestUrl = `${baseUrl}Account/ConfirmPassword`;
 
   const reqBody = JSON.stringify({

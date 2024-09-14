@@ -75,7 +75,28 @@ export default function ConfirmForm() {
 
         const signupData = await signupRes.json();
         if (signupData.success) {
-          router.replace("/auth/login");
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: email,
+              password: schemaData.password
+            }),
+          });
+    
+          const data = await res.json();
+          if (data.success) {
+            console.log("Login successful");
+            router.replace("/dashboard")
+          } else {
+            console.log(
+              "Email confirm failed",
+              data.error || "Unknown error",
+            );
+            setSubmitFail(true)
+          }
         } else {
           setSubmitFail(true);
         }
@@ -101,7 +122,7 @@ export default function ConfirmForm() {
         <Label htmlFor="code" value="Doğrulama Kodu" />
         <Input
           id="code"
-          type="text"
+          type="number"
           {...register("code")}
           placeholder="Enter confirmation code"
         />

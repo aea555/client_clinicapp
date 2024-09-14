@@ -25,7 +25,7 @@ export default function ProfileView() {
     >
       <div className="min-h-screen p-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <UpdateUserEmail accountId={Number(id)} />
+          {/* <UpdateUserEmail accountId={Number(id)} /> */}
           <UpdateUserPassword accountId={Number(id)} />
         </div>
       </div>

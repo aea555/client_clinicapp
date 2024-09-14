@@ -66,8 +66,8 @@ export default async function PatientPage() {
         </div>
       }
     >
-      <div className="flex min-h-screen flex-col justify-between gap-5 p-6">
-        <div id="topsection" className="flex flex-row flex-wrap gap-5">
+      <div className="flex min-h-screen flex-col justify-between gap-3 p-6">
+        <div id="topsection" className="mr-0 flex flex-row flex-wrap gap-3">
           {/* <div
             id="userstats"
             className="flex flex-col gap-1 rounded-md bg-white p-4"
@@ -83,26 +83,30 @@ export default async function PatientPage() {
             </List>
           </div> */}
 
-          <div
-            id="userstats"
-            className="flex flex-col gap-1 rounded-md bg-white p-4"
-          >
+          {mostRecent && (
+            <div className="flex flex-col gap-1 rounded-md bg-white p-4">
+              <h5 className="font-semibold">Yaklaşan Randevu</h5>
+
+              <List>
+                <List.Item icon={FaUserDoctor}>
+                  Dr. {mostRecent.firstName} {mostRecent.lastName}
+                </List.Item>
+                <List.Item icon={FaClinicMedical}>{mostRecent.name}</List.Item>
+                <List.Item icon={FaClock}>
+                  {new Date(mostRecent.startTime).toLocaleString()}
+                </List.Item>
+                <CancelAppointmentButton appointmentId={mostRecent.id} />
+              </List>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-1 rounded-md bg-white p-4">
             <h5 className="font-semibold">Yaklaşan Randevu</h5>
+
             <List>
-              {mostRecent && (
-                <>
-                  <List.Item icon={FaUserDoctor}>
-                    Dr. {mostRecent.firstName} {mostRecent.lastName}
-                  </List.Item>
-                  <List.Item icon={FaClinicMedical}>
-                    {mostRecent.name}
-                  </List.Item>
-                  <List.Item icon={FaClock}>
-                    {new Date(mostRecent.startTime).toLocaleString()}
-                  </List.Item>
-                  <CancelAppointmentButton appointmentId={mostRecent.id} />
-                </>
-              )}
+              <List.Item icon={FaUserDoctor}>asdasda</List.Item>
+              <List.Item icon={FaClinicMedical}>asdsadas</List.Item>
+              <List.Item icon={FaClock}>asdasd</List.Item>
             </List>
           </div>
 
@@ -114,7 +118,7 @@ export default async function PatientPage() {
             <BasicChart />
           </div> */}
 
-          <div id="gridmenu" className="grid grid-cols-2 gap-3">
+          <div id="gridmenu" className="grid grid-cols-2 gap-3 w-full md:w-auto">
             <Link
               href={`/dashboard/patient/${userId}/prescriptions`}
               className="flex flex-col rounded-2xl border-5 border-green-600 bg-green-400 p-3 shadow-lg hover:cursor-pointer hover:opacity-85"
@@ -178,51 +182,58 @@ export default async function PatientPage() {
           id="appointments"
           className="flex flex-1 flex-col gap-3 overflow-x-auto"
         >
-          <h5 className="text-lg font-semibold">Randevularım</h5>
-          <Table hoverable>
-            <TableHead>
-              <TableHeadCell>KLİNİK ADI</TableHeadCell>
-              <TableHeadCell>DOKTOR ADI</TableHeadCell>
-              <TableHeadCell>OLUŞTURMA TARİHİ</TableHeadCell>
-              <TableHeadCell>DURUM</TableHeadCell>
-              <TableHeadCell>RANDEVU TARİHİ</TableHeadCell>
-              <TableHeadCell>RANDEVU BİTİŞ TARİHİ</TableHeadCell>
-              <TableHeadCell></TableHeadCell>
-            </TableHead>
-            <TableBody className="divide-y">
-              {data &&
-                data.map((v) => {
-                  return (
-                    <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                        {v.name}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                        {v.firstName} {v.lastName}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                        {new Date(v.createdAt).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                        {mapAppointmentStatusToSpan(v.appointmentStatus)}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                        {new Date(v.startTime).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                        {v.finishTime &&
-                          new Date(v?.finishTime).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                        {v.appointmentStatus === 0 && (
-                          <CancelAppointmentButton appointmentId={v.id} />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
+          {data && data.length > 0 ? (
+            <>
+              <h5 className="text-lg font-semibold">Randevularım</h5>
+              <Table hoverable>
+                <TableHead>
+                  <TableHeadCell>KLİNİK ADI</TableHeadCell>
+                  <TableHeadCell>DOKTOR ADI</TableHeadCell>
+                  <TableHeadCell>OLUŞTURMA TARİHİ</TableHeadCell>
+                  <TableHeadCell>DURUM</TableHeadCell>
+                  <TableHeadCell>RANDEVU TARİHİ</TableHeadCell>
+                  <TableHeadCell>RANDEVU BİTİŞ TARİHİ</TableHeadCell>
+                  <TableHeadCell></TableHeadCell>
+                </TableHead>
+                <TableBody className="divide-y">
+                  {data.map((v) => {
+                    return (
+                      <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {v.name}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {v.firstName} {v.lastName}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {new Date(v.createdAt).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {mapAppointmentStatusToSpan(v.appointmentStatus)}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {new Date(v.startTime).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {v.finishTime &&
+                            new Date(v?.finishTime).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {v.appointmentStatus === 0 && (
+                            <CancelAppointmentButton appointmentId={v.id} />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </>
+          ) : (
+            <h5 className="text-lg font-semibold">
+              Randevu geçmişiniz bulunmamaktadır.
+            </h5>
+          )}
         </div>
       </div>
     </Suspense>

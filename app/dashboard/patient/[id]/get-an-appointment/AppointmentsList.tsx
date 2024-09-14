@@ -62,8 +62,8 @@ export default function AppointmentsList({ appointments }: Props) {
         }
       >
         {appointmentsOfTime.length === 0 ? (
-          <div className="text-center">
-            <Spinner size="xl" aria-label="Loading" />
+          <div className="text-center mt-6 font-bold text-red-500">
+            <p>Bu klinik şu anda kapalı ya da boşta hiç randevu yok.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-6">

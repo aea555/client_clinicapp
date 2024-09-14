@@ -5,6 +5,7 @@ export interface SignupRequest extends BaseType {
   accountId: number;
   firstName: string;
   lastName: string;
+  signUpRequest: number
 };
 
 export type SignupRequestsResult =

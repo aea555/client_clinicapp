@@ -12,7 +12,7 @@ import {
   HiInformationCircle,
   HiOutlineExclamationCircle,
 } from "react-icons/hi";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function RoleRequestForm() {
   const [submitOkay, setSubmitOkay] = useState<boolean>(false);
@@ -21,6 +21,9 @@ export default function RoleRequestForm() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [failMsg, setFailMsg] = useState<string>("");
+  const pathname = usePathname();
+  const segments = pathname.split('/')
+  const accountId = segments[segments.length - 1];
 
   const router = useRouter();
 
@@ -80,22 +83,37 @@ export default function RoleRequestForm() {
         }),
       });
 
-      if (schemaData.Role !== "patient") {
-        const data = await res.json();
+      const data = await res.json();
 
-        if (data.success) {
-          console.log("Role request create successful");
+      if (data.success) {
+        console.log("Role request create successful");
+        if (schemaData.Role === "patient") {
+          const tokenRes = await fetch("/api/auth/patienttoken", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ accountId: accountId }),
+          });
+          
+          const response = await tokenRes.json();
+        
+          if (response.success) {
+            router.replace("/dashboard");
+          } else {
+            console.error(response)
+          }
+        }
+        else {
           window.location.reload();
-        } else {
-          console.log(
-            "Role request create failed",
-            data.error || "Unknown error",
-          );
-          setAlertOpen(true);
-          setStatuscode(data?.statusCode.toString());
         }
       } else {
-        router.replace("/logout");
+        console.log(
+          "Role request create failed",
+          data.error || "Unknown error",
+        );
+        setAlertOpen(true);
+        setStatuscode(data?.statusCode.toString());
       }
     } catch (error) {
       console.error("An error occurred:", error);
@@ -114,7 +132,7 @@ export default function RoleRequestForm() {
     >
       <form
         id="roleRequestForm"
-        className="flex w-1/2 flex-col gap-4 p-4"
+        className="flex md:w-3/4 lg:w-1/2 flex-col gap-4 p-4"
         onSubmit={handleSubmit(onSubmitPost)}
       >
         <div>

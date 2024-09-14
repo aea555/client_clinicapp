@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, List, Modal, Spinner } from "flowbite-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { Suspense } from "react";
 import { FaUserDoctor } from "react-icons/fa6";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -15,6 +15,7 @@ export default function AppointmentCard({ appointment }: Props) {
   const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
   const [openModal, setOpenModal] = React.useState<boolean>(false);
   const [failMsg, setFailMsg] = React.useState<string>("");
+  const router = useRouter();
 
   const pathname = usePathname();
   const pathSegments = pathname.split("/");
@@ -40,7 +41,7 @@ export default function AppointmentCard({ appointment }: Props) {
 
       if (data.success) {
         console.log("Appointment CREATE successful");
-        window.location.reload();
+        router.push("/dashboard");
       } else {
         console.log(
           "Appointment CREATE failed",

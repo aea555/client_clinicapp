@@ -67,7 +67,7 @@ export default async function PatientPage() {
       }
     >
       <div className="flex min-h-screen flex-col justify-between gap-3 p-6">
-        <div id="topsection" className="mr-0 flex flex-row flex-wrap gap-3">
+        <div id="topsection" className="flex flex-row flex-wrap gap-3">
           {/* <div
             id="userstats"
             className="flex flex-col gap-1 rounded-md bg-white p-4"
@@ -99,16 +99,6 @@ export default async function PatientPage() {
               </List>
             </div>
           )}
-
-          <div className="flex flex-col gap-1 rounded-md bg-white p-4">
-            <h5 className="font-semibold">Yaklaşan Randevu</h5>
-
-            <List>
-              <List.Item icon={FaUserDoctor}>asdasda</List.Item>
-              <List.Item icon={FaClinicMedical}>asdsadas</List.Item>
-              <List.Item icon={FaClock}>asdasd</List.Item>
-            </List>
-          </div>
 
           {/* <div
             id="somecharts"

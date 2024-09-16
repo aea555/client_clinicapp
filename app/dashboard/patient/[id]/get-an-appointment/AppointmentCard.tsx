@@ -41,7 +41,7 @@ export default function AppointmentCard({ appointment }: Props) {
 
       if (data.success) {
         console.log("Appointment CREATE successful");
-        router.push("/dashboard");
+        window.location.reload();
       } else {
         console.log(
           "Appointment CREATE failed",

@@ -4,8 +4,9 @@ import { ServiceResult } from "types/ServiceResult";
 import { env } from "../../env";
 import { cookies } from "next/headers";
 
-export async function GivePatientToken(
+export async function GiveNewToken(
   accountId: number,
+  role: string,
   clientIp?: string | null,
 ): Promise<ServiceResult<string>> {
   const baseUrl = env.API_CON;
@@ -16,9 +17,12 @@ export async function GivePatientToken(
   if (clientIp) {
     reqHeaders.append("X-Forwarded-For", clientIp);
   }
-  const response = await fetch(`${baseUrl}Auth/patientToken/${accountId}`, {
+  const response = await fetch(`${baseUrl}Auth/generateToken/${accountId}`, {
     method: "POST",
     headers: reqHeaders,
+    body: JSON.stringify({
+      role
+    })
   });
 
   if (!response.ok) {
@@ -32,7 +36,7 @@ export async function GivePatientToken(
     return ErrRes;
   }
 
-  const result: ServiceResult = await response.json();
+  const result: ServiceResult<string> = await response.json();
   if (result.data){
     cookies().has("token") && cookies().delete("token");
     cookies().set("token", result.data, { secure: true });

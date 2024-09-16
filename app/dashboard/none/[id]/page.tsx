@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense } from "react";
 import { GetRequestOfAccount } from "apicalls/Account/GetRequestsOfAccount";
 import {
   Spinner,
@@ -11,6 +11,11 @@ import {
 } from "flowbite-react";
 import RoleRequestForm from "./RoleRequestForm";
 import { mapRequestStatusToSpan } from "utils/mapRequestStatus";
+import { SignupRequest } from "types/RoleSignupRequest.type";
+import { redirect } from "next/navigation";
+import { env } from "env";
+import { GiveNewToken } from "apicalls/Auth/GiveNewToken";
+import { cookies } from "next/headers";
 
 async function getRelatedData() {
   const res = await GetRequestOfAccount();
@@ -23,8 +28,59 @@ async function getRelatedData() {
   return null;
 }
 
-export default async function NonePage() {
+async function redirectIfAccepted(
+  data: {
+    biochemistSignupRequest: SignupRequest | null;
+    doctorSignupRequest: SignupRequest | null;
+  } | null,
+) {
+  const baseUrl = env.CLIENT_CON;
+  if (data?.biochemistSignupRequest?.signUpRequest === 1) {
+    const res = await fetch(`${baseUrl}auth/newtoken`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accountId: data.biochemistSignupRequest.accountId.toString(), role: "biochemist" }),
+    });
+    
+    const response = await res.json();
+
+    console.log(JSON.stringify({ accountId: data.biochemistSignupRequest.accountId, role: "biochemist" }))
+  
+    if (response.success) {
+      redirect("/dashboard");
+    } else {
+      console.error();
+    }
+  }
+  if (data?.doctorSignupRequest?.signUpRequest === 1) {
+    const res = await fetch(`${baseUrl}auth/newtoken`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accountId: data.doctorSignupRequest.accountId.toString(), role: "doctor" }),
+    });
+
+    console.log(JSON.stringify({ accountId: data.doctorSignupRequest.accountId, role: "doctor" }))
+    
+    const response = await res.json();
+    if (response.success) {
+      redirect("/dashboard");
+    } else {
+      console.error();
+    }
+  }
+}
+
+export default async function NonePage({
+  params: { id },
+}: {
+  params: { id: string };
+}) {
   const data = await getRelatedData();
+  //await redirectIfAccepted(data);
 
   return (
     <Suspense
@@ -95,7 +151,10 @@ export default async function NonePage() {
                 </Table>
                 {data?.biochemistSignupRequest?.signUpRequest === 1 ||
                 data?.doctorSignupRequest?.signUpRequest === 1 ? (
-                  <span className="text-lg font-bold">Başvurunuz onaylanmış. Sisteme yeniden giriş yaparak panelinize ulaşabilirsiniz.</span>
+                  <span className="text-lg font-bold">
+                    Başvurunuz onaylanmış. Sisteme yeniden giriş yaparak
+                    panelinize ulaşabilirsiniz.
+                  </span>
                 ) : (
                   <span className="text-lg font-bold">
                     Lütfen başvurunuz onaylanana kadar bekleyin.
@@ -110,9 +169,12 @@ export default async function NonePage() {
                 veya biyokimyager olarak kayıt açın.
               </p>
               <p className="p-4">
-                Hasta kaydı açmanız durumunda otomatik olarak panelinize yönlendirileceksiniz.
+                Hasta kaydı açmanız durumunda otomatik olarak panelinize
+                yönlendirileceksiniz.
               </p>
-              <RoleRequestForm />
+              <RoleRequestForm params={{
+                id: id
+              }} />
             </div>
           )}
         </div>

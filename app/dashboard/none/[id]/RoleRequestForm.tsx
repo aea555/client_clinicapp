@@ -14,7 +14,11 @@ import {
 } from "react-icons/hi";
 import { usePathname, useRouter } from "next/navigation";
 
-export default function RoleRequestForm() {
+export default function RoleRequestForm({
+  params: { id },
+}: {
+  params: { id: string };
+}) {
   const [submitOkay, setSubmitOkay] = useState<boolean>(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [statuscode, setStatuscode] = useState("");
@@ -22,7 +26,7 @@ export default function RoleRequestForm() {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [failMsg, setFailMsg] = useState<string>("");
   const pathname = usePathname();
-  const segments = pathname.split('/')
+  const segments = pathname.split("/");
   const accountId = segments[segments.length - 1];
 
   const router = useRouter();
@@ -88,23 +92,25 @@ export default function RoleRequestForm() {
       if (data.success) {
         console.log("Role request create successful");
         if (schemaData.Role === "patient") {
-          const tokenRes = await fetch("/api/auth/patienttoken", {
+          const tokenRes = await fetch("/api/auth/newtoken", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ accountId: accountId }),
+            body: JSON.stringify({
+              accountId: accountId,
+              role: schemaData.Role,
+            }),
           });
-          
+
           const response = await tokenRes.json();
-        
+
           if (response.success) {
-            router.replace("/dashboard");
+            router.replace(`/dashboard/patient/${id}`);
           } else {
-            console.error(response)
+            console.error(response);
           }
-        }
-        else {
+        } else {
           window.location.reload();
         }
       } else {
@@ -130,143 +136,149 @@ export default function RoleRequestForm() {
         </div>
       }
     >
-      <form
-        id="roleRequestForm"
-        className="flex md:w-3/4 lg:w-1/2 flex-col gap-4 p-4"
-        onSubmit={handleSubmit(onSubmitPost)}
-      >
-        <div>
-          <Select
-            className="bg-background"
-            label="Profil türü"
-            {...register("Role")}
-          >
-            {roles.map((v) => (
-              <SelectItem key={v.key}>{v.label}</SelectItem>
-            ))}
-          </Select>
+      {isProcessing ? (
+        <div className="text-center">
+          <Spinner size="xl" aria-label="Loading" />
         </div>
-        <div>
-          <Input
-            id="firstName"
-            type="text"
-            label="Ad"
-            placeholder=""
-            {...register("FirstName")}
-          />
-        </div>
-        <div>
-          <Input
-            id="lastName"
-            type="text"
-            label="Soyad"
-            {...register("LastName")}
-          />
-        </div>
-        <Button onClick={() => setOpenModal(true)}>Gönder</Button>
-        {errors.FirstName?.message && (
-          <Toast>
-            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-              <HiExclamation className="h-5 w-5" />
-            </div>
-            <div className="ml-3 text-sm font-normal">
-              {errors.FirstName?.message}
-            </div>
-            <Toast.Toggle />
-          </Toast>
-        )}
-
-        {errors.LastName?.message && (
-          <Toast>
-            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-              <HiExclamation className="h-5 w-5" />
-            </div>
-            <div className="ml-3 text-sm font-normal">
-              {errors.LastName?.message}
-            </div>
-            <Toast.Toggle />
-          </Toast>
-        )}
-
-        {errors.Role?.message && (
-          <Toast>
-            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-              <HiExclamation className="h-5 w-5" />
-            </div>
-            <div className="ml-3 text-sm font-normal">
-              {errors.Role?.message}
-            </div>
-            <Toast.Toggle />
-          </Toast>
-        )}
-
-        {failMsg && (
-          <Toast>
-            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-              <HiExclamation className="h-5 w-5" />
-            </div>
-            <div className="ml-3 text-sm font-normal">{failMsg}</div>
-            <Toast.Toggle />
-          </Toast>
-        )}
-        {alertOpen ? (
-          <div>
-            <Alert
-              color="failure"
-              className="bg-danger-foreground"
-              icon={HiInformationCircle}
-              onDismiss={() => setAlertOpen(false)}
-            >
-              <span className="block font-medium">Kod: {statuscode}</span>
-              <span className="block font-medium">İstek başarısız!</span>
-              <span className="block font-medium">
-                Kontrol edip tekrar deneyin.
-              </span>
-            </Alert>
-          </div>
-        ) : null}
-        {submitOkay ? (
-          <Alert color="success">
-            <span className="font-medium">İşlem Başarılı! </span>
-            Lütfen sayfanız yüklenirken bekleyin...
-          </Alert>
-        ) : null}
-        <Modal
-          show={openModal}
-          size="md"
-          onClose={() => setOpenModal(false)}
-          popup
+      ) : (
+        <form
+          id="roleRequestForm"
+          className="flex flex-col gap-4 p-4 md:w-3/4 lg:w-1/2"
+          onSubmit={handleSubmit(onSubmitPost)}
         >
-          <Modal.Header />
-          <Modal.Body>
-            <div className="text-center">
-              <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
-              <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                Devam etmek istediğinize emin misiniz?
-              </h3>
-              <div className="flex justify-center gap-4">
-                <Button
-                  onClick={() => {
-                    handleSubmit(onSubmitPost)();
-                    setOpenModal(false);
-                  }}
-                  isProcessing={isProcessing}
-                  disabled={isProcessing}
-                >
-                  {"Evet"}
-                </Button>
-                <Button
-                  disabled={isProcessing}
-                  color="gray"
-                  onClick={() => setOpenModal(false)}
-                >
-                  Hayır, iptal et.
-                </Button>
+          <div>
+            <Select
+              className="bg-background"
+              label="Profil türü"
+              {...register("Role")}
+            >
+              {roles.map((v) => (
+                <SelectItem key={v.key}>{v.label}</SelectItem>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <Input
+              id="firstName"
+              type="text"
+              label="Ad"
+              placeholder=""
+              {...register("FirstName")}
+            />
+          </div>
+          <div>
+            <Input
+              id="lastName"
+              type="text"
+              label="Soyad"
+              {...register("LastName")}
+            />
+          </div>
+          <Button onClick={() => setOpenModal(true)}>Gönder</Button>
+          {errors.FirstName?.message && (
+            <Toast>
+              <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                <HiExclamation className="h-5 w-5" />
               </div>
+              <div className="ml-3 text-sm font-normal">
+                {errors.FirstName?.message}
+              </div>
+              <Toast.Toggle />
+            </Toast>
+          )}
+
+          {errors.LastName?.message && (
+            <Toast>
+              <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                <HiExclamation className="h-5 w-5" />
+              </div>
+              <div className="ml-3 text-sm font-normal">
+                {errors.LastName?.message}
+              </div>
+              <Toast.Toggle />
+            </Toast>
+          )}
+
+          {errors.Role?.message && (
+            <Toast>
+              <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                <HiExclamation className="h-5 w-5" />
+              </div>
+              <div className="ml-3 text-sm font-normal">
+                {errors.Role?.message}
+              </div>
+              <Toast.Toggle />
+            </Toast>
+          )}
+
+          {failMsg && (
+            <Toast>
+              <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                <HiExclamation className="h-5 w-5" />
+              </div>
+              <div className="ml-3 text-sm font-normal">{failMsg}</div>
+              <Toast.Toggle />
+            </Toast>
+          )}
+          {alertOpen ? (
+            <div>
+              <Alert
+                color="failure"
+                className="bg-danger-foreground"
+                icon={HiInformationCircle}
+                onDismiss={() => setAlertOpen(false)}
+              >
+                <span className="block font-medium">Kod: {statuscode}</span>
+                <span className="block font-medium">İstek başarısız!</span>
+                <span className="block font-medium">
+                  Kontrol edip tekrar deneyin.
+                </span>
+              </Alert>
             </div>
-          </Modal.Body>
-        </Modal>
-      </form>
+          ) : null}
+          {submitOkay ? (
+            <Alert color="success">
+              <span className="font-medium">İşlem Başarılı! </span>
+              Lütfen sayfanız yüklenirken bekleyin...
+            </Alert>
+          ) : null}
+          <Modal
+            show={openModal}
+            size="md"
+            onClose={() => setOpenModal(false)}
+            popup
+          >
+            <Modal.Header />
+            <Modal.Body>
+              <div className="text-center">
+                <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+                <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                  Devam etmek istediğinize emin misiniz?
+                </h3>
+                <div className="flex justify-center gap-4">
+                  <Button
+                    onClick={() => {
+                      handleSubmit(onSubmitPost)();
+                      setOpenModal(false);
+                    }}
+                    isProcessing={isProcessing}
+                    disabled={isProcessing}
+                  >
+                    {"Evet"}
+                  </Button>
+                  <Button
+                    disabled={isProcessing}
+                    color="gray"
+                    onClick={() => setOpenModal(false)}
+                  >
+                    Hayır, iptal et.
+                  </Button>
+                </div>
+              </div>
+            </Modal.Body>
+          </Modal>
+        </form>
+      )}
     </Suspense>
   );
 }
